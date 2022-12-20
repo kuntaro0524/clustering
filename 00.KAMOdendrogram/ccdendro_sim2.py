@@ -9,16 +9,16 @@ from scipy.cluster import hierarchy
 # CC(benz-benz) Average: 0.917110, variance: 0.008674, median: 0.957200
 # CC(apo-benz)  Average: 0.907780, variance: 0.008920, median: 0.947350
 
-sample_dict=[{"name":"apo-apo","mean":0.958,"sigma":0.009192},
-             {"name":"apo-benz", "mean":0.9472,"sigma":0.00867},
-             {"name":"benz-benz","mean":0.957,"sigma":0.00892}]
+# sample_dict=[{"name":"apo-apo","mean":0.958,"sigma":0.009192},
+            #  {"name":"apo-benz", "mean":0.9472,"sigma":0.00867},
+            #  {"name":"benz-benz","mean":0.957,"sigma":0.00892}]
 
 sample_dict=[{"name":"apo-apo","mean":0.95,"sigma":0.01},
-             {"name":"apo-benz", "mean":0.945,"sigma":0.01},
+             {"name":"apo-benz", "mean":0.85,"sigma":0.03},
              {"name":"benz-benz","mean":0.95,"sigma":0.01}]
 
 # Figure name
-figname="amean95_diff_0.05_sigma0.01"
+figname="mean85_diff_10per_absigma_0.03"
 
 files=glob.glob("%s*"%figname)
 n_exist=len(files)
