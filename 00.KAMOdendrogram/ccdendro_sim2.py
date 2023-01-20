@@ -13,9 +13,9 @@ from scipy.cluster import hierarchy
             #  {"name":"apo-benz", "mean":0.9472,"sigma":0.00867},
             #  {"name":"benz-benz","mean":0.957,"sigma":0.00892}]
 
-sample_dict=[{"name":"apo-apo","mean":0.95,"sigma":0.01},
-             {"name":"apo-benz", "mean":0.85,"sigma":0.03},
-             {"name":"benz-benz","mean":0.95,"sigma":0.01}]
+sample_dict=[{"name":"apo-apo","mean":0.98,"sigma":0.01},
+             {"name":"apo-benz", "mean":0.978,"sigma":0.01},
+             {"name":"benz-benz","mean":0.98,"sigma":0.01}]
 
 # Figure name
 figname="mean85_diff_10per_absigma_0.03"

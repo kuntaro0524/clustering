@@ -9,16 +9,23 @@ from scipy.cluster import hierarchy
 # CC(benz-benz) Average: 0.917110, variance: 0.008674, median: 0.957200
 # CC(apo-benz)  Average: 0.907780, variance: 0.008920, median: 0.947350
 
-sample_dict=[{"name":"apo-apo","mean":0.958,"sigma":0.009192},
-             {"name":"apo-benz", "mean":0.9472,"sigma":0.00867},
-             {"name":"benz-benz","mean":0.957,"sigma":0.00892}]
-
-sample_dict=[{"name":"apo-apo","mean":0.95,"sigma":0.01},
-             {"name":"apo-benz", "mean":0.945,"sigma":0.01},
-             {"name":"benz-benz","mean":0.95,"sigma":0.01}]
-
 # Figure name
-figname="amean95_diff_0.05_sigma0.01"
+aamean=float(sys.argv[1])
+bbmean=float(sys.argv[2])
+abmean=float(sys.argv[3])
+aasig=float(sys.argv[4])
+bbsig=float(sys.argv[5])
+absig=float(sys.argv[6])
+
+# N data
+ndata = int(sys.argv[7])
+
+sample_dict=[{"name":"apo-apo","mean":aamean,"sigma":aasig},
+             {"name":"apo-benz", "mean":abmean,"sigma":absig},
+             {"name":"benz-benz","mean":bbmean,"sigma":bbsig}]
+
+figname="mean_aa%3.2f_sig%3.2f_bb%3.2f_sig_%3.2f_ab_%3.2f_sig_%3.2f_%03d" % \
+(aamean, aasig, bbmean, bbsig, abmean, absig, ndata)
 
 files=glob.glob("%s*"%figname)
 n_exist=len(files)
@@ -50,9 +57,10 @@ def make_random_cc(stat_dict):
     return randcc
 
 sample_list=[]
-for i in np.arange(0,100):
+n_half = int(ndata/2)
+for i in np.arange(0,n_half):
     sample_list.append("apo")
-for i in np.arange(0,100):
+for i in np.arange(0,n_half):
     sample_list.append("benz")
 
 dis_list = []
