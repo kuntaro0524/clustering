@@ -93,25 +93,17 @@ for idx1,s1 in enumerate(sample_list):
 # Histgram of CC
 fig = plt.figure(figsize=(25,10))
 fig.subplots_adjust(left=0.05, right=0.95, bottom=0.05, top=0.95) #この1行を入れる
-spec = gridspec.GridSpec(ncols=2, nrows=1, width_ratios=[1, 5])
-ax1=fig.add_subplot(spec[0])
-ax2=fig.add_subplot(spec[1])
 
-# ax1.xlim(0,1)
-# ax1.set_xmargin(0)
-# ax1.set_ymargin(0)
-ax1.set_xlim(0.70,1.0)
-ax1.hist([apo_apo,apo_ben,ben_ben],bins=10,label=["apo-apo","apo-ben", "ben-ben"])
-ax1.legend(loc="upper left")
+ax=fig.add_subplot("111")
 
-print(len(dis_list),len(name_list))
 Z = hierarchy.linkage(dis_list, 'ward')
 plt.title(title_s)
 
-# ax2.set_xmargin(0)
-# ax2.set_ymargin(0)
+# Get labels
+xlabels = ax.get_xmajorticklabels()
+#print(xlabels)
+
 dn = hierarchy.dendrogram(Z,labels=sample_list, leaf_font_size=10)
-# dn = hierarchy.dendrogram(Z)
 plt.savefig("%s.jpg"%figname)
 plt.show()
 
