@@ -1,0 +1,15 @@
+Finally: 
+Run all_simulate.sh
+to use 'main_control.py'
+
+After generation of "cc.dat" use
+dendro.py
+to draw dendro gram.
+
+other programs are generated during the developement.
+calc.sh
+calc_y.sh
+cc_calc.py
+hist.py
+make_cctable.py
+rot_y_control.py
