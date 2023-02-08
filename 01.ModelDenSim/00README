@@ -2,6 +2,8 @@ Finally:
 Run all_simulate.sh
 to use 'main_control.py'
 
+これって日本語もかけるん？
+
 After generation of "cc.dat" use
 dendro.py
 to draw dendro gram.
