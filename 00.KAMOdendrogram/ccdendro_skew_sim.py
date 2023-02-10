@@ -10,7 +10,6 @@ from scipy.stats import skewnorm
 # CC(benz-benz) Average: 0.917110, variance: 0.008674, median: 0.957200
 # CC(apo-benz)  Average: 0.907780, variance: 0.008920, median: 0.947350
 
-
 sample_dict=[{"name":"apo-apo",  "alpha":-10,"loc":0.98,"scale":0.05},
              {"name":"apo-benz", "alpha":-10,"loc":0.90,"scale":0.05},
              {"name":"benz-benz","alpha":-10,"loc":0.98,"scale":0.05}]
@@ -93,26 +92,15 @@ spec = gridspec.GridSpec(ncols=2, nrows=1, width_ratios=[1, 5])
 ax1=fig.add_subplot(spec[0])
 ax2=fig.add_subplot(spec[1])
 
-#alpha=-10
-#loc=0.98
-#scale=0.1
-
-# ax1.xlim(0,1)
-# ax1.set_xmargin(0)
-# ax1.set_ymargin(0)
 ax1.set_xlim(0.70,1.0)
 ax1.hist([apo_apo,apo_ben,ben_ben],bins=10,label=["apo-apo","apo-ben", "ben-ben"])
 ax1.legend(loc="upper left")
 
-#print(len(dis_list),len(name_list))
-#print(apo_ben)
 Z = hierarchy.linkage(dis_list, 'ward')
 plt.title(title_s)
 
-# ax2.set_xmargin(0)
-# ax2.set_ymargin(0)
 dn = hierarchy.dendrogram(Z,labels=sample_list, leaf_font_size=10)
-# dn = hierarchy.dendrogram(Z)
+
 plt.savefig("%s.jpg"%figname)
 plt.show()
 
