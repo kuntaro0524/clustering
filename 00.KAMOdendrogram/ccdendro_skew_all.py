@@ -98,7 +98,7 @@ def make_CC_table(n_sample, sample_dict):
 def makeFigure(figure_prefix, input_title, dist_list, sample_list, aaa, bba, aba):
     # Histgram of CC
     fig = plt.figure(figsize=(25,10))
-    fig.subplots_adjust(left=0.05, right=0.95, bottom=0.05, top=0.95) #この1行を入れる
+    fig.subplots_adjust(left=0.05, right=0.95, bottom=0.05, top=0.95) 
     spec = gridspec.GridSpec(ncols=2, nrows=1, width_ratios=[1, 5])
     ax1=fig.add_subplot(spec[0])
     ax2=fig.add_subplot(spec[1])
