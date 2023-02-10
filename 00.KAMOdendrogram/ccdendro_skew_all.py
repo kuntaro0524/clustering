@@ -6,7 +6,7 @@ from matplotlib import gridspec
 from scipy.cluster import hierarchy
 from scipy.stats import skewnorm
 
-def set_sampledict(alpha,loc,scale,delta_cc):
+def set_sampledict(alpha,loc,scale,delta_cc,ndata):
     # CC(A-B) is set here
     cc_diff = loc - delta_cc
 
@@ -15,8 +15,8 @@ def set_sampledict(alpha,loc,scale,delta_cc):
              {"name":"B-B","alpha":alpha,"loc":loc,"scale":scale}]
 
     # Figure name
-    prefix="alpha_%.1f_%.3f_%.3f" % (
-        sample_dict[1]['alpha'],sample_dict[1]['loc'], sample_dict[1]['scale'])
+    prefix="alpha_%.1f_%.3f_%.3f_dcc_%.2f_nd_%05d" % (
+        sample_dict[1]['alpha'],sample_dict[1]['loc'], sample_dict[1]['scale'],delta_cc,ndata)
 
     files=glob.glob("%s*"%prefix)
     n_exist=len(files)
@@ -131,7 +131,7 @@ def makeFigure(figure_prefix, input_title, dist_list, sample_list, aaa, bba, aba
     #                          connectionstyle="arc3,rad=-0.2"))
 
     plt.savefig("%s.jpg"%figure_prefix)
-    plt.show()
+    #plt.show()
 
 # Main routine
 alpha=-10.0
@@ -141,6 +141,9 @@ scale=0.03
 
 n_sample=1000
 
-sample_dict, figure_prefix, input_title = set_sampledict(alpha,loc,scale,delta_cc)
-sample_list, dist_list, name_list, cc_list, aaa, bba, aba = make_CC_table(n_sample, sample_dict)
-makeFigure(figure_prefix, input_title, dist_list, sample_list, aaa, bba, aba)
+for delta_cc in [0.01,0.02,0.03]:
+    for scale in [0.03, 0.04, 0.05, 0.06, 0.10]:
+        for n_sample in [100,200,500,1000]:
+            sample_dict, figure_prefix, input_title = set_sampledict(alpha,loc,scale,delta_cc,n_sample)
+            sample_list, dist_list, name_list, cc_list, aaa, bba, aba = make_CC_table(n_sample, sample_dict)
+            makeFigure(figure_prefix, input_title, dist_list, sample_list, aaa, bba, aba)
