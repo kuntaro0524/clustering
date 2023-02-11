@@ -22,7 +22,7 @@ def set_sampledict(alpha,loc,scale,delta_cc,ndata):
     n_exist=len(files)
     if n_exist != 0:
         index=n_exist
-        prefix="%s_%02d"%(prefix,index)
+        prefix="%s_%04d"%(prefix,index)
 
     # Dendrogram title
     title_s = "INPUT: (%s: alpha: %8.3f loc:%8.3f scale:%8.3f)(%s alpha:%8.3f loc:%8.3f scale:%8.3f)(%s: alpha:%8.3f loc:%8.3f scale:%8.3f)" \
@@ -61,8 +61,6 @@ def make_CC_table(n_sample, sample_dict):
     ab=[]
     bb=[]
 
-    ofile=open("cc.dat","w")
-
     for idx1,s1 in enumerate(sample_list):
         for s2 in sample_list[idx1+1:]:
             if s1=="A" and s2=="A":
@@ -81,11 +79,9 @@ def make_CC_table(n_sample, sample_dict):
             if cctmp>1.0:
                 cctmp=1.0
             dist = np.sqrt(1-cctmp*cctmp)
-            ofile.write("%9.5f\n"%cctmp)
             dist_list.append(dist)
             cc_list.append(cctmp)
 
-    ofile.close()
     # Making numpy array before returning
     aa_a=np.array(aa)
     bb_a=np.array(bb)
@@ -110,14 +106,9 @@ def makeFigure(figure_prefix, input_title, dist_list, sample_list, aaa, bba, aba
     ax1.hist(bba,bins=20,alpha=0.5,label="BB")
     ax1.legend(loc="upper left")
 
-    outfile=open("results.dat","w")
-    outfile.write("AA(mean,std,median)=%12.5f %12.5f %12.5f\n"% (aaa.mean(), aaa.std(), np.median(aaa)))
-    outfile.write("AB(mean,std,median)=%12.5f %12.5f %12.5f\n"% (aba.mean(), aba.std(), np.median(aba)))
-    outfile.write("BB(mean,std,median)=%12.5f %12.5f %12.5f\n"% (bba.mean(), bba.std(), np.median(bba)))
-    outfile.close()
 
     Z = hierarchy.linkage(dist_list, 'ward')
-    title_result="\nAA(mean:%5.3f std:%5.3f median:%5.3f) AB(mean:%5.3f std:%5.3f median:%5.3f) BB(mean:%5.3f std:%5.3f median:%5.3f)" % \
+    title_result="\n[Result]AA(mean:%5.3f std:%5.3f median:%5.3f) AB(mean:%5.3f std:%5.3f median:%5.3f) BB(mean:%5.3f std:%5.3f median:%5.3f)" % \
         (aaa.mean(), aaa.std(), np.median(aaa), \
         aba.mean(), aba.std(), np.median(aba), \
         bba.mean(), bba.std(), np.median(bba))
@@ -136,14 +127,45 @@ def makeFigure(figure_prefix, input_title, dist_list, sample_list, aaa, bba, aba
 # Main routine
 alpha=-10.0
 loc=0.98
-delta_cc = 0.01
-scale=0.03
 
-n_sample=1000
+#delta_cc = 0.01
+#scale=0.03
 
-for delta_cc in [0.01,0.02,0.03]:
-    for scale in [0.03, 0.04, 0.05, 0.06, 0.10]:
-        for n_sample in [100,200,500,1000]:
+summary_file=open("summary.csv","w")
+summary_file.write("alpha,loc,delta_cc,scale,n_sample,aaa_mean,aa_std,aa_median,ab_mean,ab_std,ab_median,bb_mean,bb_std,bb_median\n")
+
+file_index=0
+for delta_cc in [0.01,0.02,0.03,0.04,0.05]:
+   for scale in [0.03, 0.04, 0.05, 0.06, 0.10]:
+       for n_sample in [100,200,500,1000]:
+            file_index+=1
             sample_dict, figure_prefix, input_title = set_sampledict(alpha,loc,scale,delta_cc,n_sample)
             sample_list, dist_list, name_list, cc_list, aaa, bba, aba = make_CC_table(n_sample, sample_dict)
+            # Add file index
+            figure_prefix="%s_idx%04d"%(figure_prefix,file_index)
             makeFigure(figure_prefix, input_title, dist_list, sample_list, aaa, bba, aba)
+
+            # CC table is generated
+            ccout=open("cc_%04d.dat" % file_index,"w")
+            for cc in cc_list:
+                ccout.write("%8.4f\n"%cc)
+            ccout.close()
+
+            # Result stats
+            outfile=open("results_%04d.csv"%file_index,"w")
+            outfile.write("combination,mean,std,median\n")
+            outfile.write("AA,%12.5f,%12.5f,%12.5f\n"% (aaa.mean(), aaa.std(), np.median(aaa)))
+            outfile.write("AB,%12.5f,%12.5f,%12.5f\n"% (aba.mean(), aba.std(), np.median(aba)))
+            outfile.write("BB,%12.5f,%12.5f,%12.5f\n"% (bba.mean(), bba.std(), np.median(bba)))
+            outfile.close()
+
+            # Summary file
+            summary_file.write("%5.3f,%5.3f,%5.3f,%5.3f,%d,%8.5f,%8.5f,%8.5f,%8.5f,%8.5f,%8.5f,%8.5f,%8.5f,%8.5f\n" % (
+                alpha,loc,delta_cc,scale,n_sample, \
+                aaa.mean(), aaa.std(), np.median(aaa), \
+                aba.mean(), aba.std(), np.median(aba), \
+                bba.mean(), bba.std(), np.median(bba)))
+
+            summary_file.flush()
+
+summary_file.close()
