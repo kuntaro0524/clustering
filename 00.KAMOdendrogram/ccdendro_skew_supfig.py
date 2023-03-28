@@ -120,6 +120,8 @@ title_result="\nAA(mean:%5.3f std:%5.3f median:%5.3f) AB(mean:%5.3f std:%5.3f me
 
 print(title_result)
 plt.title(title_s+title_result)
+plt.xlabel("individual dataset")
+plt.ylabel("Ward distnace")
 
 dn = hierarchy.dendrogram(Z,labels=sample_list, leaf_font_size=10)
 
