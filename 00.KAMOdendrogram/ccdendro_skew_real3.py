@@ -7,25 +7,33 @@ from scipy.cluster import hierarchy
 from scipy.stats import skewnorm
 from scipy.cluster.hierarchy import fcluster
 
-# CC(apo-apo)   Average: 0.925913, variance: 0.009192, median: 0.968700
-# CC(benz-benz) Average: 0.917110, variance: 0.008674, median: 0.957200
-# CC(apo-benz)  Average: 0.907780, variance: 0.008920, median: 0.947350
-
-scale=float(sys.argv[1])
-n_total=int(sys.argv[2])
+#scale=float(sys.argv[1])
+n_total=int(sys.argv[1])
 n_each = int(n_total/2.0)
-delta = float(sys.argv[3])
 
-aabb_mean = 0.98
-ab_mean = aabb_mean - delta
+# alpha, loc, scale
+# AA
+alpha_aa = -13.851
+loc_aa = 0.9945
+scale_aa = 0.0174
 
-sample_dict=[{"name":"apo-apo",  "alpha":-10,"loc":aabb_mean,"scale":scale},
-             {"name":"apo-benz", "alpha":-10,"loc":ab_mean,"scale":scale},
-             {"name":"benz-benz","alpha":-10,"loc":aabb_mean,"scale":scale}]
+# AB
+alpha_ab = -11.3798
+loc_ab = 0.9799
+scale_ab = 0.0277
+
+# BB
+alpha_bb = -8.4750
+loc_bb = 0.9883
+scale_bb = 0.0251
+
+sample_dict=[{"name":"A-A","alpha":alpha_aa,"loc":loc_aa,"scale":scale_aa},
+             {"name":"A-B","alpha":alpha_ab,"loc":loc_ab,"scale":scale_ab},
+             {"name":"B-B","alpha":alpha_bb,"loc":loc_bb,"scale":scale_bb}]
 
 # Figure name
-figname="alpha_%.1f_%.3f_%.3f" % (
-    sample_dict[1]['alpha'],sample_dict[1]['loc'], sample_dict[1]['scale'])
+figname="alpha_%.1f_%.3f_%.3f_N%05d" % (
+    sample_dict[1]['alpha'],sample_dict[1]['loc'], sample_dict[1]['scale'], n_total)
     
 
 files=glob.glob("%s*"%figname)
@@ -57,9 +65,9 @@ def make_skew_random_cc(stat_dict):
 
 sample_list=[]
 for i in np.arange(0,n_each):
-    sample_list.append("apo")
+    sample_list.append("A")
 for i in np.arange(0,n_each):
-    sample_list.append("benz")
+    sample_list.append("B")
 
 dis_list = []
 name_list=[]
@@ -72,19 +80,19 @@ ofile=open("cc.dat","w")
 
 for idx1,s1 in enumerate(sample_list):
     for s2 in sample_list[idx1+1:]:
-        if s1=="apo" and s2=="apo":
-            stat_dict=get_stat_info("apo-apo")
-            name_list.append("apo-apo")
+        if s1=="A" and s2=="A":
+            stat_dict=get_stat_info("A-A")
+            name_list.append("A-A")
             cctmp = make_skew_random_cc(stat_dict)
             apo_apo.append(cctmp)
-        elif s1=="benz" and s2=="benz":
-            stat_dict=get_stat_info("benz-benz")
-            name_list.append("benz-benz")
+        elif s1=="B" and s2=="B":
+            stat_dict=get_stat_info("B-B")
+            name_list.append("B-B")
             cctmp = make_skew_random_cc(stat_dict)
             ben_ben.append(cctmp)
         else:
-            stat_dict=get_stat_info("apo-benz")
-            name_list.append("apo-benz")
+            stat_dict=get_stat_info("A-B")
+            name_list.append("A-B")
             cctmp = make_skew_random_cc(stat_dict)
             apo_ben.append(cctmp)
 
@@ -98,7 +106,10 @@ ofile.close()
 
 # Histgram of CC
 fig = plt.figure(figsize=(25,10))
-ax1=fig.add_subplot(111)
+fig.subplots_adjust(left=0.05, right=0.95, bottom=0.05, top=0.95) #この1行を入れる
+spec = gridspec.GridSpec(ncols=2, nrows=1, width_ratios=[1, 5])
+ax1=fig.add_subplot(spec[0])
+ax2=fig.add_subplot(spec[1])
 
 # CC stats
 aaa=np.array(apo_apo)
@@ -106,6 +117,11 @@ aba=np.array(apo_ben)
 bba=np.array(ben_ben)
 
 ax1.set_xlim(0.70,1.0)
+#ax1.hist([apo_apo,apo_ben,ben_ben],bins=20,label=["apo-apo","apo-ben", "ben-ben"],alpha=0.5)
+ax1.hist(aaa,bins=20,alpha=0.5,label="AA")
+ax1.hist(aba,bins=20,alpha=0.5,label="AB")
+ax1.hist(bba,bins=20,alpha=0.5,label="BB")
+ax1.legend(loc="upper left")
 
 outfile=open("results.dat","w")
 outfile.write("AA(mean,std,median)=%12.5f %12.5f %12.5f\n"% (aaa.mean(), aaa.std(), np.median(aaa)))
@@ -123,8 +139,6 @@ title_result="\nAA(mean:%5.3f std:%5.3f median:%5.3f) AB(mean:%5.3f std:%5.3f me
 
 print(title_result)
 plt.title(title_s+title_result)
-plt.xlabel("individual dataset")
-plt.ylabel("Ward distnace")
 
 dn = hierarchy.dendrogram(Z,labels=sample_list, leaf_font_size=10)
 

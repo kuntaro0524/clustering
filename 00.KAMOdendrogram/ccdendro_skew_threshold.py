@@ -7,22 +7,47 @@ from scipy.cluster import hierarchy
 from scipy.stats import skewnorm
 from scipy.cluster.hierarchy import fcluster
 
-# CC(apo-apo)   Average: 0.925913, variance: 0.009192, median: 0.968700
-# CC(benz-benz) Average: 0.917110, variance: 0.008674, median: 0.957200
-# CC(apo-benz)  Average: 0.907780, variance: 0.008920, median: 0.947350
-
-scale=float(sys.argv[1])
-n_total=int(sys.argv[2])
-
+#scale=float(sys.argv[1])
+n_total=int(sys.argv[1])
 n_each = int(n_total/2.0)
 
-sample_dict=[{"name":"A-A",  "alpha":-10,"loc":0.98,"scale":scale},
-             {"name":"A-B", "alpha":-10,"loc":0.97,"scale":scale},
-             {"name":"B-B","alpha":-10,"loc":0.98,"scale":scale}]
+# alpha, loc, scale
+# This is 'apo-apo' optimistic data
+#alpha = -13.851
+#loc = 0.97
+#scale = 0.0174
+
+#alpha = -10.704
+#loc = 0.97
+#scale = 0.02343
+
+# Benz-Benz
+#alpha = -9.5818
+#loc = 0.97
+#scale = 0.0354
+
+# Average
+# alpha=-11.6908
+# scale = 0.0241
+# loc = 0.97
+
+# Apo-Apo distribution -> best fitting
+alpha=-15.2177
+scale = 0.0195
+loc = 0.97
+
+# Differencial value 
+delta = 0.01
+cc_same = loc
+cc_diff = loc - delta
+
+sample_dict=[{"name":"A-A",  "alpha":alpha,"loc":cc_same,"scale":scale},
+             {"name":"A-B", "alpha":alpha,"loc":cc_diff,"scale":scale},
+             {"name":"B-B","alpha":alpha,"loc":cc_same,"scale":scale}]
 
 # Figure name
-figname="alpha_%.1f_%.3f_%.3f" % (
-    sample_dict[1]['alpha'],sample_dict[1]['loc'], sample_dict[1]['scale'])
+figname="alpha_%.1f_%.3f_%.3f_N%05d" % (
+    sample_dict[1]['alpha'],sample_dict[1]['loc'], sample_dict[1]['scale'], n_total)
     
 
 files=glob.glob("%s*"%figname)
@@ -131,9 +156,10 @@ plt.title(title_s+title_result)
 
 dn = hierarchy.dendrogram(Z,labels=sample_list, leaf_font_size=10)
 
-last_merge = Z[-1]  # 最後の結合を取得
+last_merge = Z[-2]  # 最後の結合を取得
 threshold = last_merge[2]  # 最後の結合でのWard距離を取得
 print("Threshold for two main clusters:", threshold)
+print(last_merge)
 
 plt.savefig("%s.jpg"%figname)
 plt.show()
