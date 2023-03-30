@@ -13,6 +13,11 @@ alpha=-15.2177
 scale = 0.0195
 loc = 0.97
 
+# mean value
+#alpha=-11.6908
+#scale = 0.0241
+#loc = 0.97
+
 # Differencial value 
 delta = 0.01
 cc_same = loc
@@ -21,8 +26,6 @@ cc_diff = loc - delta
 sample_dict=[{"name":"A-A","alpha":alpha,"loc":cc_same,"scale":scale},
              {"name":"A-B","alpha":alpha,"loc":cc_diff,"scale":scale},
              {"name":"B-B","alpha":alpha,"loc":cc_same,"scale":scale}]
-
-
 
 # Dendrogram title
 title_s = "INPUT: (%s: alpha: %8.3f loc:%8.3f scale:%8.3f)(%s alpha:%8.3f loc:%8.3f scale:%8.3f)(%s: alpha:%8.3f loc:%8.3f scale:%8.3f)" \
@@ -111,23 +114,24 @@ def make_dendrogram(ndata, ntimes):
     tha = np.array(thresholds)
     return (tha.mean(),tha.std())
 
-n_total=int(sys.argv[1])
+#n_total=int(sys.argv[1])
 # Figure name
-figname="alpha_%.1f_%.3f_%.3f_N%05d" % (
+n_total=10
+prefix="alpha_%.1f_%.3f_%.3f_N%05d" % (
     sample_dict[1]['alpha'],sample_dict[1]['loc'], sample_dict[1]['scale'], n_total)
 
-files=glob.glob("%s*"%figname)
+files=glob.glob("%s*"%prefix)
 n_exist=len(files)
 if n_exist != 0:
     index=n_exist
-    figname="%s_%02d"%(figname,index)
+    prefix="%s_%02d"%(prefix,index)
 
-for ndata
-print(make_dendrogram(ndata=100, ntimes=10))
-print(make_dendrogram(ndata=200, ntimes=10))
-print(make_dendrogram(ndata=300, ntimes=10))
-print(make_dendrogram(ndata=400, ntimes=10))
-print(make_dendrogram(ndata=500, ntimes=10))
-print(make_dendrogram(ndata=1000, ntimes=10))
+ofile=open("%s.csv"%prefix,"w")
+
+for ndata in np.arange(100,1001,100):
+    mean,std=make_dendrogram(ndata=ndata, ntimes=10)
+    ofile.write("%6d %8.5f %8.5f\n"%(ndata,mean,std))
+
+ofile.close()
 # plt.savefig("%s.jpg"%figname)
 # plt.show()
