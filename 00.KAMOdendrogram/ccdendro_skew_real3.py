@@ -13,19 +13,22 @@ n_each = int(n_total/2.0)
 
 # alpha, loc, scale
 # AA
-alpha_aa = -13.851
-loc_aa = 0.9945
-scale_aa = 0.0174
+alpha_aa = -15.2177
+loc_aa = 0.9944
+#scale_aa = 0.0195
+scale_aa = 0.0390
 
 # AB
 alpha_ab = -11.3798
-loc_ab = 0.9799
-scale_ab = 0.0277
+#loc_ab = 0.9799
+#loc_ab = 0.988
+loc_ab = 0.970
+scale_ab = 0.0554
 
 # BB
 alpha_bb = -8.4750
 loc_bb = 0.9883
-scale_bb = 0.0251
+scale_bb = 0.0502
 
 sample_dict=[{"name":"A-A","alpha":alpha_aa,"loc":loc_aa,"scale":scale_aa},
              {"name":"A-B","alpha":alpha_ab,"loc":loc_ab,"scale":scale_ab},
@@ -124,6 +127,10 @@ ax1.hist(bba,bins=20,alpha=0.5,label="BB")
 ax1.legend(loc="upper left")
 
 outfile=open("results.dat","w")
+outfile.write("AA(alpha,loc,scale)=%12.5f %12.5f %12.5f\n"% (alpha_aa, loc_aa, scale_aa))
+outfile.write("AB(alpha,loc,scale)=%12.5f %12.5f %12.5f\n"% (alpha_ab, loc_ab, scale_ab))
+outfile.write("BB(alpha,loc,scale)=%12.5f %12.5f %12.5f\n"% (alpha_bb, loc_bb, scale_bb))
+
 outfile.write("AA(mean,std,median)=%12.5f %12.5f %12.5f\n"% (aaa.mean(), aaa.std(), np.median(aaa)))
 outfile.write("AB(mean,std,median)=%12.5f %12.5f %12.5f\n"% (aba.mean(), aba.std(), np.median(aba)))
 outfile.write("BB(mean,std,median)=%12.5f %12.5f %12.5f\n"% (bba.mean(), bba.std(), np.median(bba)))
@@ -142,9 +149,11 @@ plt.title(title_s+title_result)
 
 dn = hierarchy.dendrogram(Z,labels=sample_list, leaf_font_size=10)
 
-last_merge = Z[-1]  # 最後の結合を取得
-threshold = last_merge[2]  # 最後の結合でのWard距離を取得
+# 最後のから２つ目、で、一番高い山のWard distanceを取得
+last_merge = Z[-2]  
+threshold = last_merge[2]  
 print("Threshold for two main clusters:", threshold)
+plt.annotate(f"Threshold: {threshold:.4f}", xy=(0.6, 0.65), xycoords='axes fraction')
 
 plt.savefig("%s.jpg"%figname)
 plt.show()

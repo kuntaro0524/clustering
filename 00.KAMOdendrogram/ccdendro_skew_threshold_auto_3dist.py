@@ -7,22 +7,40 @@ from scipy.cluster import hierarchy
 from scipy.stats import skewnorm
 from scipy.cluster.hierarchy import fcluster
 
+isDefault=True
 
-# alpha, loc, scale
-# AA
-alpha_aa = -13.851
-loc_aa = 0.9945
-scale_aa = 0.0174
+if isDefault:
+    # Default parameters
+    # AA
+    alpha_aa = -15.2177
+    loc_aa = 0.9944
+    scale_aa = 0.0195
 
-# AB
-alpha_ab = -11.3798
-loc_ab = 0.9799
-scale_ab = 0.0277
+    # AB
+    alpha_ab = -11.3798
+    loc_ab = 0.9880
+    scale_ab = 0.0277
 
-# BB
-alpha_bb = -8.4750
-loc_bb = 0.9883
-scale_bb = 0.0251
+    # BB
+    alpha_bb = -8.4750
+    loc_bb = 0.9883
+    scale_bb = 0.0251
+else:
+    # Large sigma & Difference simulation
+    # AA
+    alpha_aa = -15.2177
+    loc_aa = 0.9944
+    scale_aa = 0.0390
+
+    # AB
+    alpha_ab = -11.3798
+    loc_ab = 0.970
+    scale_ab = 0.0554
+
+    # BB
+    alpha_bb = -8.4750
+    loc_bb = 0.9883
+    scale_bb = 0.0502
 
 # dictionary keeping 'skewed gaussian parameters'
 sample_dict=[{"name":"A-A","alpha":alpha_aa,"loc":loc_aa,"scale":scale_aa},
@@ -129,11 +147,16 @@ if n_exist != 0:
     prefix="%s_%02d"%(prefix,index)
 
 ofile=open("%s.csv"%prefix,"w")
-
+ofile.write("n_data,threshold,sigma\n")
+n_times=int(sys.argv[1])
 for ndata in np.arange(100,1001,100):
-    mean,std=make_dendrogram(ndata=ndata, ntimes=10)
-    ofile.write("%6d %8.5f %8.5f\n"%(ndata,mean,std))
+    mean,std=make_dendrogram(ndata=ndata, ntimes=n_times)
+    ofile.write("%6d,%8.5f,%8.5f\n"%(ndata,mean,std))
 
 ofile.close()
-# plt.savefig("%s.jpg"%figname)
-# plt.show()
+
+outfile=open("params.dat","w")
+outfile.write("AA(alpha,loc,scale)=%12.5f %12.5f %12.5f\n"% (alpha_aa, loc_aa, scale_aa))
+outfile.write("AB(alpha,loc,scale)=%12.5f %12.5f %12.5f\n"% (alpha_ab, loc_ab, scale_ab))
+outfile.write("BB(alpha,loc,scale)=%12.5f %12.5f %12.5f\n"% (alpha_bb, loc_bb, scale_bb))
+outfile.close()
