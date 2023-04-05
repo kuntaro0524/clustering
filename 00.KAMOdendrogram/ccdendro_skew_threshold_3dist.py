@@ -13,13 +13,13 @@ n_each = int(n_total/2.0)
 
 # alpha, loc, scale
 # AA
-alpha_aa = -13.851
+alpha_aa = -15.2177
 loc_aa = 0.9945
-scale_aa = 0.0174
+scale_aa = 0.0195
 
 # AB
 alpha_ab = -11.3798
-loc_ab = 0.9799
+loc_ab = 0.990
 scale_ab = 0.0277
 
 # BB
@@ -47,8 +47,6 @@ title_s = "INPUT: (%s: alpha: %8.3f loc:%8.3f scale:%8.3f)(%s alpha:%8.3f loc:%8
     % (sample_dict[0]['name'], sample_dict[0]['alpha'],sample_dict[0]['loc'], sample_dict[0]['scale'], \
     sample_dict[1]['name'], sample_dict[1]['alpha'],sample_dict[1]['loc'], sample_dict[1]['scale'], \
     sample_dict[2]['name'], sample_dict[2]['alpha'],sample_dict[2]['loc'], sample_dict[2]['scale'])
-
-print(title_s)
 
 def get_stat_info(cc_combination):
     for idx,s in enumerate(sample_dict):
@@ -102,7 +100,30 @@ for idx1,s1 in enumerate(sample_list):
         ofile.write("%9.5f\n"%cctmp)
         dis_list.append(dist)
 
+print(len(dis_list))
+
 ofile.close()
+
+# 最瀕値を取得する関数を定義する
+def find_mode(data):
+    # ヒストグラムのbinの数を計算
+    #num_bins = len(data) // 20
+    num_bins = 20
+
+    # ヒストグラムを作成
+    hist, bin_edges = np.histogram(data, bins=num_bins)
+
+    # 最も頻度が高いbinのインデックスを取得
+    max_bin_index = np.argmax(hist)
+
+    # 最瀕値の範囲の最小値と最大値を取得
+    min_val = bin_edges[max_bin_index]
+    max_val = bin_edges[max_bin_index + 1]
+
+    # 最瀕値の最終値（最小値と最大値の平均）を計算
+    mode_final = (min_val + max_val) / 2
+
+    return mode_final
 
 # Histgram of CC
 fig = plt.figure(figsize=(25,10))
@@ -116,18 +137,18 @@ aaa=np.array(apo_apo)
 aba=np.array(apo_ben)
 bba=np.array(ben_ben)
 
+# 
+mode_aa = find_mode(aaa)
+mode_ab = find_mode(aba)
+mode_bb = find_mode(bba)
+
 ax1.set_xlim(0.70,1.0)
 #ax1.hist([apo_apo,apo_ben,ben_ben],bins=20,label=["apo-apo","apo-ben", "ben-ben"],alpha=0.5)
-ax1.hist(aaa,bins=20,alpha=0.5,label="AA")
-ax1.hist(aba,bins=20,alpha=0.5,label="AB")
-ax1.hist(bba,bins=20,alpha=0.5,label="BB")
+ax1.hist(aaa,bins=20,alpha=0.5,label="AA", density=True)
+ax1.hist(aba,bins=20,alpha=0.5,label="AB", density=True)
+ax1.hist(bba,bins=20,alpha=0.5,label="BB",density=True)
 ax1.legend(loc="upper left")
 
-outfile=open("results.dat","w")
-outfile.write("AA(mean,std,median)=%12.5f %12.5f %12.5f\n"% (aaa.mean(), aaa.std(), np.median(aaa)))
-outfile.write("AB(mean,std,median)=%12.5f %12.5f %12.5f\n"% (aba.mean(), aba.std(), np.median(aba)))
-outfile.write("BB(mean,std,median)=%12.5f %12.5f %12.5f\n"% (bba.mean(), bba.std(), np.median(bba)))
-outfile.close()
 
 #plt.savefig("cc_dist.png")
 
@@ -142,9 +163,22 @@ plt.title(title_s+title_result)
 
 dn = hierarchy.dendrogram(Z,labels=sample_list, leaf_font_size=10)
 
-last_merge = Z[-1]  # 最後の結合を取得
+last_merge = Z[-2]  # 最後の結合を取得
 threshold = last_merge[2]  # 最後の結合でのWard距離を取得
 print("Threshold for two main clusters:", threshold)
 
+plt.annotate(f"mode(AA)= {mode_aa:.3f}", xy=(0.5, 0.85), xycoords='axes fraction')
+plt.annotate(f"mode(BB)= {mode_bb:.3f}", xy=(0.5, 0.80), xycoords='axes fraction')
+plt.annotate(f"mode(AB)= {mode_ab:.3f}", xy=(0.5, 0.75), xycoords='axes fraction')
+
 plt.savefig("%s.jpg"%figname)
 plt.show()
+
+outfile=open("result_%s.dat" % figname,"w")
+outfile.write("AA(mean,std,median)=%12.5f %12.5f %12.5f\n"% (aaa.mean(), aaa.std(), np.median(aaa)))
+outfile.write("AB(mean,std,median)=%12.5f %12.5f %12.5f\n"% (aba.mean(), aba.std(), np.median(aba)))
+outfile.write("BB(mean,std,median)=%12.5f %12.5f %12.5f\n"% (bba.mean(), bba.std(), np.median(bba)))
+outfile.write("Mode of AA=%12.5f\n" % mode_aa)
+outfile.write("Mode of AB=%12.5f\n" % mode_ab)
+outfile.write("Mode of BB=%12.5f\n" % mode_bb)
+outfile.close()
