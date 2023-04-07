@@ -5,9 +5,10 @@ import os
 from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
+import sys
 
 class SimHCA():
-    def __init__(self, n_datasets):
+    def __init__(self, n_datasets, aa_sets, bb_sets, ab_sets):
         # 全データセット数
         self.n_datasetes = n_datasets
         # A構造のデータセット数
@@ -15,6 +16,14 @@ class SimHCA():
         # B構造のデータセット数
         self.n_B = self.n_datasetes - self.n_A
         self.isPrepSample=False
+        # simulation で利用するskewed gaussian関数のパラメータをセットする
+        # この関数では、A-A, A-B, B-Bの３つの分布のパラメータをセットする
+        # パラメータは各関数でalpha, loc, scaleの３つである。
+        # それぞれのパラメータはdict型の変数とし、"AA", "AB", "BB"のキーでアクセスできるようにする
+        # 受け取る aa_setsには (alpha, loc, scale)が入っているのでそれぞれの値をキーでアクセスできるようにする
+        self.sample_dict = [{"name":"AA", "alpha":aa_sets[0],"loc":aa_sets[1],"scale":aa_sets[2]},
+                            {"name":"AB", "alpha":ab_sets[0],"loc":ab_sets[1],"scale":ab_sets[2]},
+                            {"name":"BB", "alpha":bb_sets[0],"loc":bb_sets[1],"scale":bb_sets[2]}]
 
     # self.sample_listという配列にself.n_A, self.n_Bずつラベル"A"と"B"を追加する
     def addSampleName(self):
@@ -41,16 +50,16 @@ class SimHCA():
     # 最終的にクラスタリングに必要な距離行列の計算も実施する。
     # distance = sqrt(1-cc^2)
     # によって計算し、self.distance_matrixという名前のnumpy配列に格納する dimensionは1次元
-    def makeCC(self, aa_sets, bb_sets, ab_sets):
+    def makeCC(self):
         from scipy.stats import skewnorm
         import numpy as np
         import SkewedGaussianCC
 
         # aa_sets, bb_sets, ab_sets にはそれぞれ(alpha, loc, scale)のタプルが格納されている
         # この関数内で利用できるように展開する
-        alphaAA, locAA, scaleAA = aa_sets
-        alphaBB, locBB, scaleBB = bb_sets
-        alphaAB, locAB, scaleAB = ab_sets
+        alphaAA, locAA, scaleAA = self.getParamDataAxis("AA")
+        alphaBB, locBB, scaleBB = self.getParamDataAxis("BB")
+        alphaAB, locAB, scaleAB = self.getParamDataAxis("AB")
 
         self.ccAA = []
         self.ccAB = []
@@ -152,16 +161,29 @@ class SimHCA():
     # 左側の1/3には歪ガウス関数の形状をプロットする。AA, AB, BBの順にプロットする
     # 歪ガウス関数には SkewedGaussianクラスのget_mode関数を利用した最大値の取得のあと、x_maxとして、透明度0.2でx=x_maxを破線で描く
     # 右側の2/3にはデンドログラムをプロットする
-    def plotClustering(self, fig_name, aa_sets, bb_sets, ab_sets, threshold):
+    def plotClustering(self, fig_name, threshold):
         import numpy as np
         import matplotlib.pyplot as plt
         from scipy.cluster.hierarchy import dendrogram
 
         # 歪ガウス関数のパラメータは(alpha, loc, scale)の順に格納されている
         # aa_sets, bb_sets, ab_setsがそれに相当する
-        alpha_aa, loc_aa, scale_aa = aa_sets
-        alpha_ab, loc_ab, scale_ab = ab_sets
-        alpha_bb, loc_bb, scale_bb = bb_sets
+        # self.sample_dictはdictの配列で、keyは "name", "alpha", "loc", "scale" である
+        # それぞれのkeyに対応する値を取り出す
+        # 例えば self.sample_dictのnameが"AA"の場合、そのalpha, loc, scaleはalpha_aa, loc_aa, scale_aaに格納する
+        for sample in self.sample_dict:
+            if sample["name"] == "AA":
+                alpha_aa = sample["alpha"]
+                loc_aa = sample["loc"]
+                scale_aa = sample["scale"]
+            elif sample["name"] == "AB":
+                alpha_ab = sample["alpha"]
+                loc_ab = sample["loc"]
+                scale_ab = sample["scale"]
+            elif sample["name"] == "BB":
+                alpha_bb = sample["alpha"]
+                loc_bb = sample["loc"]
+                scale_bb = sample["scale"]
 
         fig = plt.figure(figsize=(24, 10))
         # ax1とax2に分けるが、大きさは1/3と2/3にする。ax1は左側、ax2は右側
@@ -226,18 +248,6 @@ class SimHCA():
         plt.clf()
         #plt.show()
 
-    # 他のクラス関数を活用してクラスタリングの計算、評価、プロットを行うクラス関数
-    def doClustering(self, threshold):
-        shca.addSampleName()
-        aa_sets = (-15.2177, 0.9945, 0.0195)
-        bb_sets = (-8.475, 0.9883, 0.0251)
-        ab_sets = (-11.3898, 0.9799, 0.0277)
-        self.makeCC(aa_sets, bb_sets, ab_sets)
-        self.calcZ()
-        self.plotClustering("test.png", aa_sets, bb_sets, ab_sets, threshold )
-
-        return self.evaluateClustering(threshold)
-
     # skewed gaussian パラメータを変更し、クラスタリングの結果から分類の成功の是非を判定するクラス関数
     # この関数ではABのlocのみを変更した場合のクラスタリングの結果を評価する
     # 具体的な手順は以下
@@ -254,7 +264,7 @@ class SimHCA():
     # thresholdはクラスタリングの閾値を指定する
     # この関数は、loc_abの値を変更して、クラスタリングを行い、分類の成功の是非を判定する
     # loc_abの範囲は min_loc_ab から max_loc_ab まで step_loc_ab ずつ変化させる
-    def simSmallerDiff(self, min_loc_ab, max_loc_ab, step_loc_ab, n_times, threshold):
+    def simSmallerDiff(self, data="AA",param="loc",min_value=0.0, max_value=1.0, step=0.01, n_times=10, threshold=0.6):
         self.boundary_list = []
 
         if self.isPrepSample == False:
@@ -265,31 +275,44 @@ class SimHCA():
             file_prefix = f"cycle{ith_cycle:02d}"
             # 荒いスキャンを実施する
             # このときのfile_prefixはcycle01_coarse
+            # この結果、boundary_ab, results1 が得られる
             file_prefix_coarse = file_prefix + "_coarse"
-            boundary_ab, results1 = self.simChangeLocAB(min_loc_ab, max_loc_ab, step_loc_ab, threshold, file_prefix_coarse)
+            boundary_coarse, results1 = self.simChangeAndGo(data, param, min_value, max_value, step, threshold, file_prefix_coarse)
+            # boundary_abにはNoneが入っている可能性があるので、Noneが入っていた場合にはこのサイクルの残りの処理はスキップする
+            if boundary_coarse is None:
+                continue
             # 細かいスキャンを実施する
             # このときのfile_prefixはcycle01_fine
-            file_prefix = file_prefix + "_fine"
+            file_prefix_fine = file_prefix + "_fine"
             # boundary_ab の周囲を少し細かく解析する　self.simChangeLocAB関数を利用
             # fine_stepはstep_loc_abの1/10
             # fine_rangeはfine_stepの10倍
-            fine_step = step_loc_ab / 10.0
+            fine_step = step / 10.0
             fine_range = fine_step * 10.0
-            min_loc_ab = boundary_ab - fine_range 
-            max_loc_ab = boundary_ab + fine_range
-            boundary_fine, results2 = self.simChangeLocAB(min_loc_ab, max_loc_ab, fine_step, threshold, file_prefix)
+            min_fine = boundary_coarse - fine_range 
+            max_fine = boundary_coarse + fine_range
+            boundary_fine, results2 = self.simChangeAndGo(data, param, min_fine, max_fine, fine_step, threshold, file_prefix_fine)
             
             # results1, results2の結果をpandasの別個のdataframeに格納する
-            df_tmp1 = pd.DataFrame(results1, columns=["dataindex", "loc_ab", "cluster_1_A_purity", "cluster_1_B_purity", "cluster_2_A_purity", "cluster_2_B_purity", "cluster_1_count", "cluster_2_count"])
-            df_tmp2 = pd.DataFrame(results2, columns=["dataindex", "loc_ab", "cluster_1_A_purity", "cluster_1_B_purity", "cluster_2_A_purity", "cluster_2_B_purity", "cluster_1_count", "cluster_2_count"])
+            df_tmp1 = pd.DataFrame(results1, columns=["dataindex", "param", "cluster_1_A_purity", "cluster_1_B_purity", "cluster_2_A_purity", "cluster_2_B_purity", "cluster_1_count", "cluster_2_count","isomorphic_threshold","fig_name"])
+            df_tmp2 = pd.DataFrame(results2, columns=["dataindex", "param", "cluster_1_A_purity", "cluster_1_B_purity", "cluster_2_A_purity", "cluster_2_B_purity", "cluster_1_count", "cluster_2_count","isomorphic_threshold","fig_name"])
             # df_tmp1 の 'type' カラムに'coarse'を格納する
             df_tmp1['type'] = 'coarse'
+            # df_tmp1の'boundary'カラムにboundary_coarseの値を格納する
+            df_tmp1['boundary'] = boundary_coarse
             # df_tmp2 の 'type' カラムに'fine'を格納する
             df_tmp2['type'] = 'fine'
+            # df_tmp2 の 'boundary' カラムにboundary_fineの値を格納する
+            df_tmp2['boundary'] = boundary_fine
             # df_tmp1, df_tmp2を結合する
             df_tmp = pd.concat([df_tmp1, df_tmp2])
+            # dfに data, param の名前を格納する
+            df_tmp['data'] = data
+            df_tmp['param'] = param
             # df_tmp の 'cycle' という列に、ith_cycleの値を格納する
             df_tmp['cycle'] = ith_cycle
+            # df_tmpのカラムを並び替える。具体的には、'data', 'param', 'cycle', 'type', 'fig_name', 'boundary', 'dataindex', 'param', 'cluster_1_A_purity', 'cluster_1_B_purity', 'cluster_2_A_purity', 'cluster_2_B_purity', 'cluster_1_count', 'cluster_2_count','isomorphic_threshold' の順に並び替える
+            df_tmp = df_tmp[['data', 'param', 'cycle', 'type', 'fig_name', 'boundary', 'dataindex', 'cluster_1_A_purity', 'cluster_1_B_purity', 'cluster_2_A_purity', 'cluster_2_B_purity', 'cluster_1_count', 'cluster_2_count','isomorphic_threshold']]
             # すでに計算した結果がある場合は、結果を結合する
             if ith_cycle == 0:
                 df = df_tmp
@@ -299,6 +322,11 @@ class SimHCA():
             # boundary_fineの値をboundary_listに格納する
             self.boundary_list.append(boundary_fine)
 
+        # もしも self.boundary_list が空の場合はコメントを出力して終了する
+        if len(self.boundary_list) == 0:
+            print("self.boundary_list is empty")
+            return
+        
         # dfの結果をCSVファイルとして出力する
         df.to_csv("simSmallerDiff.csv")
 
@@ -311,85 +339,87 @@ class SimHCA():
 
         # Log fileに結果を出力する
         # boundary_mean, boundary_stdを出力する
-        with open("final.dat", 'a') as f:
-            f.write(f"boundary_mean = {boundary_mean} boundary_std = {boundary_std}\n")
+        # boundary_meanに計算したデータ数も出力する
+        # modelのパラメータも出力する (self.aa_sets, self.bb_sets, self.ab_sets)
+        with open("final.dat", 'w') as f:
+            f.write(f"boundary_mean = {boundary_mean} ({len(self.boundary_list)})\n")
+            f.write(f"boundary_std = {boundary_std}\n")
+            # AA のパラメータを出力する self.getParamDataAxis("AA") は、self.sample_dictの中から、AAに対応する値を取り出す
+            f.write(f"AA = {self.getParamDataAxis('AA')}\n")
+            # BB のパラメータを出力する self.getParamDataAxis("BB") は、self.sample_dictの中から、BBに対応する値を取り出す
+            f.write(f"BB = {self.getParamDataAxis('BB')}\n")
+            # AB のパラメータを出力する self.getParamDataAxis("AB") は、self.sample_dictの中から、ABに対応する値を取り出す
+            f.write(f"AB = {self.getParamDataAxis('AB')}\n")
 
-    def obsoleted():
-        # results1 と results2の結果を、loc_abの値の昇順にソート
-        # sorted関数を利用
-        # CSVファイルとして出力する
-        # CSVファイルのファイル名は、"simSmallerDiff.csv"とする
-        # CSVファイルのヘッダーは、"dataindex, loc_ab, cluster_1_A_purity, cluster_1_B_purity, cluster_2_A_purity, cluster_2_B_purity, cluster_1_count, cluster_2_count"とする
-        # CSVファイルのデータは、results1とresults2を結合したものとする
-        # x[1] : loc_abの値
-        sorted_results = sorted(results1 + results2, key=lambda x: x[1])
-        with open("simSmallerDiff.csv", "w") as f:
-            f.write("dataindex, loc_ab, cluster_1_A_purity, cluster_1_B_purity, cluster_2_A_purity, cluster_2_B_purity, cluster_1_count, cluster_2_count\n")
-            for idx, result in enumerate(sorted_results):
-                # 出力フォーマット cluster_1_count, cluster_2_countは整数型
-                # 出力フォーマット cluster_1_A_purity, cluster_1_B_purity, cluster_2_A_purity, cluster_2_B_purityは小数点以下4桁
-                f.write(f"{result[0]:3d}, {result[1]:.3f}, {result[2]:.4f}, {result[3]:.4f}, {result[4]:.4f}, {result[5]:.4f}, {int(result[6])}, {int(result[7])}\n")
+    def simChangeAndGo(self, data, param, min_loc, max_loc, step, threshold, prefix="test"):
+        #　data名、param名の数値を少しずつ変更しながら、simulation計算を行う
+        # self.sample_dictの中から、data名、param名に対応する値を取り出す
+        # その値を、min_locからmax_locまで、stepごとに変更しながら、simulation計算を行う
+        scan_range = np.arange(min_loc, max_loc, step)
 
-        # 結果のプロットを作成する
-        # x軸はloc_abの値
-        # y1軸は、cluster_1_count, cluster_2_countの値
-        # y2軸は purityの値
-        # すべてのプロットは、1つのグラフに表示する
-        # グラフのタイトルは、"simSmallerDiff"とする
-        # グラフのファイル名は、"simSmallerDiff.png"とする
-        # グラフのx軸のラベルは、"loc_ab"とする
-        # グラフのy軸のラベルは、"purity, count"とする
-        # グラフの凡例は、"cluster_1_A_purity, cluster_1_B_purity, cluster_2_A_purity, cluster_2_B_purity, cluster_1_count, cluster_2_count"とする
-        # グラフの線の色は、"red, blue, green, yellow, black, gray"とする
-        # グラフの線のスタイルは、"solid, solid, solid, solid, solid, solid"とする
-        # グラフの線の太さは、"1, 1, 1, 1, 1, 1"とする
-        plt.figure(figsize=(25, 25))
-        plt.subplot(2, 1, 1)
-        plt.title("simSmallerDiff")
-        plt.xlabel("loc_ab")
-        plt.ylabel("purity")
-        # pointで表示する lineは不要
-        plt.scatter([result[1] for result in sorted_results], [result[2] for result in sorted_results], color="red", linestyle="solid", linewidth=1, marker="o")
-        plt.scatter([result[1] for result in sorted_results], [result[3] for result in sorted_results], color="blue", linestyle="solid", linewidth=1, marker="o")
-        plt.scatter([result[1] for result in sorted_results], [result[4] for result in sorted_results], color="green", linestyle="solid", linewidth=1, marker="o")
-        plt.scatter([result[1] for result in sorted_results], [result[5] for result in sorted_results], color="orange", linestyle="solid", linewidth=1, marker="o")
-        plt.legend(["cluster_1_A_purity", "cluster_1_B_purity", "cluster_2_A_purity", "cluster_2_B_purity"])
-        plt.subplot(2, 1, 2)
-        plt.xlabel("loc_ab")
-        plt.ylabel("count")
-        plt.plot([result[1] for result in sorted_results], [result[6] for result in sorted_results], color="black", linestyle="solid", linewidth=1, marker="o")
-        plt.plot([result[1] for result in sorted_results], [result[7] for result in sorted_results], color="gray", linestyle="solid", linewidth=1, marker="o")
-        plt.legend(["cluster_1_count", "cluster_2_count"])
-        plt.savefig("simSmallerDiff.png")   
+        # simulationCoreを呼び出して、simulation計算を行う
+        success_loc_ab, failure_loc_ab, loc_sim_results = self.simulationCore(data, param, scan_range, threshold, prefix)
 
-    def simChangeLocAB(self, min_loc, max_loc, step, threshold, prefix="test"):
-        # loc_abの範囲を指定する
-        loc_ab_range = np.arange(min_loc, max_loc, step)
+        # succcess_loc_ab, failure_loc_abの値がいずれか、もしくはいずれもNoneの場合には、boundary_loc_abを求めることができない
+        if success_loc_ab is None or failure_loc_ab is None:
+            print("boundary cannot be calculated")
+            # success_loc_ab, failure_loc_abは一応表示しておく
+            print(f"success_loc_ab: {success_loc_ab}")
+            print(f"failure_loc_ab: {failure_loc_ab}")
+            return None, None
+        else:
+            # 分類に成功する場合と失敗する場合の境界を求める
+            boundary_loc_ab = (success_loc_ab + failure_loc_ab) / 2
+            print(f"boundary_loc_ab: {boundary_loc_ab:.3f}")
+            return boundary_loc_ab, loc_sim_results
+    
+    # self.sample_dictの中で指定したdata名のパラメータを変更するクラス関数
+    def setParamDataAxis(self, data, param, value):
+        # 歪ガウス関数のパラメータは(alpha, loc, scale)の順に格納されている
+        # aa_sets, bb_sets, ab_setsがそれに相当する
+        # self.sample_dictはdictの配列で、keyは "name", "alpha", "loc", "scale" である
+        # それぞれのkeyに対応する値を取り出す
+        # 例えば self.sample_dictのnameが"AA"の場合、そのalpha, loc, scaleはalpha_aa, loc_aa, scale_aaに格納する
+        print(f"{data, param, value}")
+        for sample in self.sample_dict:
+            if sample["name"] == data:
+                sample[param] = value
 
+    # self.sample_dictの中から指定されたdata名のパラメータを取り出すクラス関数
+    # 例えば self.sample_dictのnameが"AA"の場合、そのalpha, loc, scaleをタプルとして返す
+    def getParamDataAxis(self, data):
+        for sample in self.sample_dict:
+            if sample["name"] == data:
+                return sample["alpha"], sample["loc"], sample["scale"]
+
+    # simulation coreパートを抜き出して定義する
+    def simulationCore(self, data, param, scan_range, threshold, prefix="test"):
         # simulation計算の結果を格納するリスト
         loc_sim_results = []
-        for didx, loc_ab in enumerate(loc_ab_range):
-            print(f"loc_ab: {loc_ab}")
-            # loc_abの値を変更して、クラスタリングを行う
-            aa_sets = (-15.2177, 0.9945, 0.0195)
-            bb_sets = (-8.475, 0.9883, 0.0251)
-            ab_sets = (-11.3898, loc_ab, 0.0277)
-            self.makeCC(aa_sets, bb_sets, ab_sets)
+        for didx, current_value in enumerate(scan_range):
+            # 指定したデータの指定したパラメータの値を変更して、クラスタリングを行う
+            self.setParamDataAxis(data, param, current_value)
+            self.makeCC()
             self.calcZ()
             # Figure name for this index
             figname = f"{prefix}_{didx:03d}.png"
-            self.plotClustering(figname, aa_sets, bb_sets, ab_sets, threshold)
+            self.plotClustering(figname, threshold)
             # クラスタリングの結果から、分類の成功の是非を判定する
             results = self.evaluateClustering(threshold)
             if results[0] != False:
                 cluster_1_A_purity, cluster_1_B_purity, cluster_2_A_purity, cluster_2_B_purity, cluster_1_count, cluster_2_count = results
             else:
-                print("Failed to classify")
-                failure_loc_ab = loc_ab
+                print("Failed to classify: # of cluster was not 2")
+                print("{}.".format(current_value))
+                failure_param = current_value
                 break
                 #continue
+
+            # clusteringの際の "isomorphic threshold"
+            last_merge = self.Z[-2]
+            thresh_obs = last_merge[2]
             # loc_abの値と、分類の成功の是非をリストに格納する
-            loc_sim_results.append([didx, loc_ab, cluster_1_A_purity, cluster_1_B_purity, cluster_2_A_purity, cluster_2_B_purity, cluster_1_count, cluster_2_count])
+            loc_sim_results.append([didx, current_value, cluster_1_A_purity, cluster_1_B_purity, cluster_2_A_purity, cluster_2_B_purity, cluster_1_count, cluster_2_count, thresh_obs, figname])
 
             # 分類の成功の是非を判定する
             # ここではcluster_1_count, cluster_2_count を評価する
@@ -402,31 +432,75 @@ class SimHCA():
                 print("Too many datasets in one cluster.")
                 print(cluster_1_count, cluster_2_count)
                 # 分類に失敗する場合のloc_abの値を記録する
-                failure_loc_ab = loc_ab
+                failure_param = current_value
                 break
             else:
                 # 分類に成功する場合のloc_abの値を記録する
-                success_loc_ab = loc_ab
+                print("Success {}.".format(current_value))
+                success_param = current_value
 
             # 分類の成功の是非を判定する
             if (cluster_1_A_purity >= 0.8 and cluster_1_B_purity <= 0.2 and cluster_2_A_purity <= 0.2 and cluster_2_B_purity >= 0.8) or \
                 (cluster_1_A_purity <= 0.2 and cluster_1_B_purity >= 0.8 and cluster_2_A_purity >= 0.8 and cluster_2_B_purity <= 0.2):
                 # 分類に成功する場合のloc_abの値を記録する
-                success_loc_ab = loc_ab
+                success_param = current_value
             else:
-                print("Failed.")
-                # 分類に失敗する場合のloc_abの値を記録する
-                failure_loc_ab = loc_ab
+                # 分類に失敗する場合のloc_abの値を記録する)
+                print("Failure {}.".format(current_value))
+                failure_param = current_value
                 break
         
-        # 分類に成功する場合と失敗する場合の境界を求める
-        boundary_loc_ab = (success_loc_ab + failure_loc_ab) / 2
-        print(f"boundary_loc_ab: {boundary_loc_ab:.3f}")
-        return boundary_loc_ab, loc_sim_results
+        # 仮にsuccess_loc_ab, failure_loc_abの値が定義されていない場合は、それぞれの値をNoneにする
+        if "success_param" not in locals():
+            success_param = None
+        if "failure_param" not in locals():
+            failure_param = None
+        
+        # success_loc_ab, failure_loc_abの値を返す
+        return success_param, failure_param, loc_sim_results
+    
+    # 総合的なシミュレーションを実施できるクラス関数
+    # skewed gaussianのパラメータであるloc, scale, alphaを変更して、クラスタリングを行い、その結果を評価する
+    # 手順は以下である。
+    # 1. 初期の(loc, scale, alpha)はインスタンスを作る時点で設定される
+    # 2. AA, AB, BBの3つのデータの分布の条件を変更して、クラスタリングを行う
+    # 3. どの分布のどのパラメータ(loc, scale, alpha)を変更するかを指定する
+    # 4. 指定する際には例えば、("AA", "loc", min_value, max_value, step)のように指定する
+    # 5. 上記の例であれば、AA(self.sets_aa)のlocの値をmin_valueからmax_valueまでstepごとに変更して、クラスタリングを行う
+    # 6. 結果の評価は何段階かに分けて行う
+    #    変更されたパラメータの値を利用して、クラスタリングを行う。
+    #    クラスタリングはAA, AB, BBの３つのskewed gaussianモデルからCCを得て、そのCCを利用してクラスタリングを行う
+    #    scipy.cluster.hierarchy.linkageを利用して、ward法でクラスタリングを行う 
+    # 7. 1段階目は仮定している”A"と”B”のラベルが指定したしきい値（例：0.6など）で２つのクラスタに分類されるかどうかの判定
+    #    この判定は、クラスタリングの結果を見て、クラスタの数が2であるかどうかを判定する(fclusterの戻り値の数が2であるかどうか）
+    #    この時点でクラスタの数が2でなければ、分類に失敗したと判定する。その際、失敗した入力条件(loc, scale, alpha)をすべて記録する
+    # 8. ２段階目はクラスタの数が2である場合は、クラスタの中の”A”の数がself.n_Aの20%以上であるかどうかを判定する
+    #    また、クラスタの中の”B”の数がself.n_Bの20%以上であるかどうかを判定する
+    #    この時点で、1つめのクラスタに含まれる”A”の数がself.n_Aの20%以上であるか、もしくは、2つめのクラスタに含まれる”A”の数がself.n_Aの20%以上である場合は、分類に失敗したと判定する
+    #    その際、失敗した入力条件(loc, scale, alpha)をすべて記録する
+    # 9. 3段階目は2つのクラスタに含まれる、"A", "B"のラベルの数の純度を計算する
+    #    例えば、1つめのクラスタに含まれる”A”の数が１つ目のクラスタに含まれる合計のデータ数に対する比率を計算する
+    #    1番目のクラスタに含まれるデータ数をn_1, 2番目のクラスタに含まれるデータ数をn_2とする
+    #    例えば、purityについては1つ目のクラスタに含まれる”A"のpurityをpurity_1_Aとする n_1_A / n_1 とする
+    #    purityは purity_1_A, purity_1_B, purity_2_A, purity_2_B を計算する
+    #   この時点で、purity_1_A >= 0.8 and purity_1_B <= 0.2 and purity_2_A <= 0.2 and purity_2_B >= 0.8 または、
+    #   purity_1_A <= 0.2 and purity_1_B >= 0.8 and purity_2_A >= 0.8 and purity_2_B <= 0.2 である場合は、分類に成功したと判定する
+    # 10. 4段階目は結果を記録する
+    #   3段階目で分類に成功した場合に、設定した (loc, scale, alpha) の値をすべて記録する
+    #   クラスタリングにより得られた、n_1, n_2, purity_1_A, purity_1_B, purity_2_A, purity_2_B を記録する
+    #   さらに 4. で指定した変更の対象としたパラメータの数値について、失敗したクラスタリングの結果、と、最後に成功したクラスタリングの結果の中点をその時の「限界値」(threshold)として記録する
+    #   得られた結果については、pandasのDataFrameに格納する
+    # 11. 以上の計算について6-10を１サイクルとする
+    #   6-10をn_times回繰り返し、結果を記録する。pandasについてはDataFrameをサイクルごとに更新する
 
 # テスト用のmain関数を定義する
 if __name__ == "__main__":
-    shca=SimHCA(100)
-    #def simSmallerDiff(self, min_loc_ab, max_loc_ab, step_loc_ab, n_times, threshold):
-    shca.simSmallerDiff(0.97, 1.00, 0.003, 10, 0.6)
-    
+    #aa_sets = (-15.2177, 0.9945, 0.0195)
+    aa_sets = (-15.2177, 0.99, 0.0195)
+    bb_sets = (-8.475, 0.9883, 0.0251)
+    ab_sets = (-11.3898, 0.9799, 0.0277)
+
+    shca=SimHCA(100, aa_sets=aa_sets, ab_sets=ab_sets, bb_sets=bb_sets)
+
+    n_cycle = int(sys.argv[1])
+    shca.simSmallerDiff("AB", "loc", 0.97, 1.00, 0.003, n_cycle, 0.6)

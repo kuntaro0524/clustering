@@ -43,7 +43,7 @@ class SkewedGaussianCC():
         # ピーク座標（Mode）を取得
         mode_x = result.x
         mode_y = skewnorm.pdf(mode_x, self.alpha, self.loc, self.scale)
-        print(f"Mode position: x = {mode_x}, y = {mode_y}")
+        #print(f"Mode position: x = {mode_x}, y = {mode_y}")
         return mode_x
 
     
