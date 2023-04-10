@@ -6,6 +6,8 @@ from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
 import sys
+# loggerの設定
+import logging
 
 class SimHCA():
     def __init__(self, n_datasets, aa_sets, bb_sets, ab_sets):
@@ -24,6 +26,16 @@ class SimHCA():
         self.sample_dict = [{"name":"AA", "alpha":aa_sets[0],"loc":aa_sets[1],"scale":aa_sets[2]},
                             {"name":"AB", "alpha":ab_sets[0],"loc":ab_sets[1],"scale":ab_sets[2]},
                             {"name":"BB", "alpha":bb_sets[0],"loc":bb_sets[1],"scale":bb_sets[2]}]
+        # loggerの設定
+        self.logger = logging.getLogger("my_logger")
+        self.logger.setLevel(logging.DEBUG)
+        file_handler = logging.FileHandler('hca.log')
+        console_handler = logging.StreamHandler()
+        formatter = logging.Formatter('%(asctime)s:%(levelname)s:%(message)s')
+        file_handler.setFormatter(formatter)
+        console_handler.setFormatter(formatter)
+        self.logger.addHandler(file_handler)
+        self.logger.addHandler(console_handler)
 
     # self.sample_listという配列にself.n_A, self.n_Bずつラベル"A"と"B"を追加する
     def addSampleName(self):
@@ -127,7 +139,7 @@ class SimHCA():
         num_clusters = len(np.unique(cluster_indices))
 
         if num_clusters != 2:
-            print(num_clusters)
+            self.logger.info("Number of clusters is not 2")
             return [False, 0, 0, 0, 0, 0]
 
         cluster_1_indices = np.where(cluster_indices == 1)[0]
@@ -246,6 +258,8 @@ class SimHCA():
         plt.savefig(fig_name)
         # plt をクリアしておく
         plt.clf()
+        # figもクリアしておく
+        plt.close(fig)
         #plt.show()
 
     # skewed gaussian パラメータを変更し、クラスタリングの結果から分類の成功の是非を判定するクラス関数
@@ -264,22 +278,34 @@ class SimHCA():
     # thresholdはクラスタリングの閾値を指定する
     # この関数は、loc_abの値を変更して、クラスタリングを行い、分類の成功の是非を判定する
     # loc_abの範囲は min_loc_ab から max_loc_ab まで step_loc_ab ずつ変化させる
-    def simSmallerDiff(self, data="AA",param="loc",min_value=0.0, max_value=1.0, step=0.01, n_times=10, threshold=0.6):
+    def simSmallerDiff(self, data="AA",param="loc",min_value=0.0, max_value=1.0, step=0.01, n_times=10, threshold=0.6, logprefix="simSmallerDiff"):
         self.boundary_list = []
 
         if self.isPrepSample == False:
             self.addSampleName()
+
+        # loggerに情報を記入する
+        self.logger.info(f"Simulate {data} data with {param} parameter")
         
+        # 失敗した数をカウントする変数
+        n_fail = 0
+        # dataframeを準備する
+        df = None
         for ith_cycle in range(n_times):
+            # logger に情報を記入する
+            self.logger.info(f"===== Cycle {ith_cycle+1} of {n_times} ======")
             # ファイルのプレフィクスはcycle01, cycle02, ...とする
-            file_prefix = f"cycle{ith_cycle:02d}"
+            file_prefix = f"{logprefix}{ith_cycle:02d}"
             # 荒いスキャンを実施する
             # このときのfile_prefixはcycle01_coarse
             # この結果、boundary_ab, results1 が得られる
             file_prefix_coarse = file_prefix + "_coarse"
+            # logger に情報を記入する
+            self.logger.info(f"Coarse scan with {file_prefix_coarse} prefix")
             boundary_coarse, results1 = self.simChangeAndGo(data, param, min_value, max_value, step, threshold, file_prefix_coarse)
             # boundary_abにはNoneが入っている可能性があるので、Noneが入っていた場合にはこのサイクルの残りの処理はスキップする
             if boundary_coarse is None:
+                n_fail += 1
                 continue
             # 細かいスキャンを実施する
             # このときのfile_prefixはcycle01_fine
@@ -291,7 +317,14 @@ class SimHCA():
             fine_range = fine_step * 10.0
             min_fine = boundary_coarse - fine_range 
             max_fine = boundary_coarse + fine_range
+            self.logger.info(f"Fine scan with {file_prefix_fine} prefix")
             boundary_fine, results2 = self.simChangeAndGo(data, param, min_fine, max_fine, fine_step, threshold, file_prefix_fine)
+
+            # boundary_fine が None だった場合はこの結果を無視して次の iteration へ
+            if boundary_fine is None:
+                n_fail += 1
+                self.logger.warning(f"Fine scan failed. Skip this cycle")
+                continue
             
             # results1, results2の結果をpandasの別個のdataframeに格納する
             df_tmp1 = pd.DataFrame(results1, columns=["dataindex", "param", "cluster_1_A_purity", "cluster_1_B_purity", "cluster_2_A_purity", "cluster_2_B_purity", "cluster_1_count", "cluster_2_count","isomorphic_threshold","fig_name"])
@@ -308,13 +341,13 @@ class SimHCA():
             df_tmp = pd.concat([df_tmp1, df_tmp2])
             # dfに data, param の名前を格納する
             df_tmp['data'] = data
-            df_tmp['param'] = param
+            df_tmp['scan_param'] = param
             # df_tmp の 'cycle' という列に、ith_cycleの値を格納する
             df_tmp['cycle'] = ith_cycle
             # df_tmpのカラムを並び替える。具体的には、'data', 'param', 'cycle', 'type', 'fig_name', 'boundary', 'dataindex', 'param', 'cluster_1_A_purity', 'cluster_1_B_purity', 'cluster_2_A_purity', 'cluster_2_B_purity', 'cluster_1_count', 'cluster_2_count','isomorphic_threshold' の順に並び替える
             df_tmp = df_tmp[['data', 'param', 'cycle', 'type', 'fig_name', 'boundary', 'dataindex', 'cluster_1_A_purity', 'cluster_1_B_purity', 'cluster_2_A_purity', 'cluster_2_B_purity', 'cluster_1_count', 'cluster_2_count','isomorphic_threshold']]
             # すでに計算した結果がある場合は、結果を結合する
-            if ith_cycle == 0:
+            if df is None:
                 df = df_tmp
             else:
                 df = pd.concat([df, df_tmp])
@@ -324,32 +357,36 @@ class SimHCA():
 
         # もしも self.boundary_list が空の場合はコメントを出力して終了する
         if len(self.boundary_list) == 0:
-            print("self.boundary_list is empty")
+            self.logger.info("self.boundary_list is empty")
             return
         
         # dfの結果をCSVファイルとして出力する
-        df.to_csv("simSmallerDiff.csv")
+        # prefixはfile_prefix
+        # 小数点以下は4桁まで
+        df.to_csv(logprefix + ".csv", float_format='%.4f')
 
         # self.boundary_listに含まれるboundary_fineの値の平均と標準偏差を求める
         boundary_mean = np.mean(self.boundary_list)
         boundary_std = np.std(self.boundary_list)
 
-        print(f"boundary_mean = {boundary_mean}")
-        print(f"boundary_std = {boundary_std}")
+        self.logger.info(f"boundary_mean = {boundary_mean}")
+        self.logger.info(f"boundary_std = {boundary_std}")
 
         # Log fileに結果を出力する
-        # boundary_mean, boundary_stdを出力する
-        # boundary_meanに計算したデータ数も出力する
-        # modelのパラメータも出力する (self.aa_sets, self.bb_sets, self.ab_sets)
-        with open("final.dat", 'w') as f:
-            f.write(f"boundary_mean = {boundary_mean} ({len(self.boundary_list)})\n")
-            f.write(f"boundary_std = {boundary_std}\n")
-            # AA のパラメータを出力する self.getParamDataAxis("AA") は、self.sample_dictの中から、AAに対応する値を取り出す
-            f.write(f"AA = {self.getParamDataAxis('AA')}\n")
-            # BB のパラメータを出力する self.getParamDataAxis("BB") は、self.sample_dictの中から、BBに対応する値を取り出す
-            f.write(f"BB = {self.getParamDataAxis('BB')}\n")
-            # AB のパラメータを出力する self.getParamDataAxis("AB") は、self.sample_dictの中から、ABに対応する値を取り出す
-            f.write(f"AB = {self.getParamDataAxis('AB')}\n")
+        # csv形式で出力する
+        # labelは、data, param, alpha_aa, loc_aa, scale_aa, alpha_bb, loc_bb, scale_bb, alpha_ab, loc_ab, scale_ab, min_value, max_value, step, threshold, boundary_mean, boundary_std, n_times, n_fail
+        # これらの数値軍はすべてリストに格納して戻り値として返す
+        with open("final.dat", 'a') as f:
+            # alpha_aa, loc_aa, scale_aa は getParamData() で取得した値
+            alpha_aa, loc_aa, scale_aa = self.getParamDataAxis("AA")
+            alpha_bb, loc_bb, scale_bb = self.getParamDataAxis("BB")
+            alpha_ab, loc_ab, scale_ab = self.getParamDataAxis("AB")
+            # ラベルを書く (スペースを入れない)
+            f.write(f"#data, param, alpha_aa, loc_aa, scale_aa, alpha_bb, loc_bb, scale_bb, alpha_ab, loc_ab, scale_ab, min_value, max_value, step, threshold, boundary_mean, boundary_std, n_times, n_fail")
+            # 数字を書く（小数点以下については .4f とする）
+            f.write(f"{data}, {param}, {alpha_aa:.4f}, {loc_aa:.4f}, {scale_aa:.4f}, {alpha_bb:.4f}, {loc_bb:.4f}, {scale_bb:.4f}, {alpha_ab:.4f}, {loc_ab:.4f}, {scale_ab:.4f}, {min_value}, {max_value}, {step}, {threshold}, {boundary_mean:.4f}, {boundary_std:.4f}, {n_times}, {n_fail}")
+        
+        return [alpha_aa, loc_aa, scale_aa, alpha_bb, loc_bb, scale_bb, alpha_ab, loc_ab, scale_ab, min_value, max_value, step, threshold, boundary_mean, boundary_std, n_times, n_fail]
 
     def simChangeAndGo(self, data, param, min_loc, max_loc, step, threshold, prefix="test"):
         #　data名、param名の数値を少しずつ変更しながら、simulation計算を行う
@@ -362,15 +399,15 @@ class SimHCA():
 
         # succcess_loc_ab, failure_loc_abの値がいずれか、もしくはいずれもNoneの場合には、boundary_loc_abを求めることができない
         if success_loc_ab is None or failure_loc_ab is None:
-            print("boundary cannot be calculated")
+            self.logger.info("boundary cannot be calculated")
             # success_loc_ab, failure_loc_abは一応表示しておく
-            print(f"success_loc_ab: {success_loc_ab}")
-            print(f"failure_loc_ab: {failure_loc_ab}")
+            self.logger.info(f"success_loc_ab: {success_loc_ab}")
+            self.logger.info(f"failure_loc_ab: {failure_loc_ab}")
             return None, None
         else:
             # 分類に成功する場合と失敗する場合の境界を求める
             boundary_loc_ab = (success_loc_ab + failure_loc_ab) / 2
-            print(f"boundary_loc_ab: {boundary_loc_ab:.3f}")
+            self.logger.info(f"boundary_loc_ab: {boundary_loc_ab:.3f}")
             return boundary_loc_ab, loc_sim_results
     
     # self.sample_dictの中で指定したdata名のパラメータを変更するクラス関数
@@ -380,7 +417,7 @@ class SimHCA():
         # self.sample_dictはdictの配列で、keyは "name", "alpha", "loc", "scale" である
         # それぞれのkeyに対応する値を取り出す
         # 例えば self.sample_dictのnameが"AA"の場合、そのalpha, loc, scaleはalpha_aa, loc_aa, scale_aaに格納する
-        print(f"{data, param, value}")
+        #print(f"{data, param, value}")
         for sample in self.sample_dict:
             if sample["name"] == data:
                 sample[param] = value
@@ -409,8 +446,8 @@ class SimHCA():
             if results[0] != False:
                 cluster_1_A_purity, cluster_1_B_purity, cluster_2_A_purity, cluster_2_B_purity, cluster_1_count, cluster_2_count = results
             else:
-                print("Failed to classify: # of cluster was not 2")
-                print("{}.".format(current_value))
+                self.logger.info("Failed to classify: # of cluster was not 2")
+                self.logger.info("{}.".format(current_value))
                 failure_param = current_value
                 break
                 #continue
@@ -429,14 +466,17 @@ class SimHCA():
             # cluster_1_count が self.n_A に等しくなる場合は、cluster_2_count は self.n_B に等しくなる
             # いずれにせよここでは、self.n_Aの数の20%以上の数がcluster_1_count, もしくは cluster_2_count ある場合には分類に失敗したと判定する
             if (cluster_1_count > self.n_A * 1.2) or (cluster_2_count > self.n_A * 1.2):
-                print("Too many datasets in one cluster.")
-                print(cluster_1_count, cluster_2_count)
+                self.logger.info("Too many datasets in one cluster.")
+                # loggerにcluster_1_count, cluster_2_countを記録する
+                self.logger.info("# of datasets in cluster 1: {}".format(cluster_1_count))
+                self.logger.info("# of datasets in cluster 2: {}".format(cluster_2_count))
+                
                 # 分類に失敗する場合のloc_abの値を記録する
                 failure_param = current_value
                 break
             else:
                 # 分類に成功する場合のloc_abの値を記録する
-                print("Success {}.".format(current_value))
+                self.logger.info("Success {}.".format(current_value))
                 success_param = current_value
 
             # 分類の成功の是非を判定する
@@ -446,7 +486,7 @@ class SimHCA():
                 success_param = current_value
             else:
                 # 分類に失敗する場合のloc_abの値を記録する)
-                print("Failure {}.".format(current_value))
+                self.logger.info("Failure {}.".format(current_value))
                 failure_param = current_value
                 break
         
@@ -458,6 +498,33 @@ class SimHCA():
         
         # success_loc_ab, failure_loc_abの値を返す
         return success_param, failure_param, loc_sim_results
+
+    # AAのlocを指定した範囲で変更したのち、ABのlocの範囲を指定して、クラスタリングを行い、その結果を評価する
+    def scanABwithNearAA(self, min_aa_loc, max_aa_loc, step_aa, min_ab_loc, max_ab_loc, step_ab, threshold,n_times=10):
+        # AA の範囲とステップを指定してスキャン範囲を決定
+        aa_range = np.arange(min_aa_loc, max_aa_loc, step_aa)
+
+        for idx,aa_loc in enumerate(aa_range):
+            # AAのlocを指定した値に変更
+            self.setParamDataAxis("AA", "loc", aa_loc)
+            # ABのlocの範囲を指定して、クラスタリングを行い、その結果を評価する
+            # logprefixは "scanABwithNearAA_%02d" %idx とし　ファイルのインデックスにidxを指定する
+            logprefix = "scanABwithNearAA_%02d_" %idx
+            results = self.simSmallerDiff(data="AB",param="loc",min_value=min_ab_loc, max_value=max_ab_loc, step=step_ab, n_times=n_times, threshold=threshold, logprefix=logprefix)
+            # resultsには [alpha_aa, loc_aa, scale_aa, alpha_bb, loc_bb, scale_bb, alpha_ab, loc_ab, scale_ab, min_value, max_value, step, threshold, boundary_mean, boundary_std, n_times, n_fail] が格納されている
+            # これらの数値をpandasのDataFrameに格納する
+            df = pd.DataFrame([results], columns=["alpha_aa", "loc_aa", "scale_aa", "alpha_bb", "loc_bb", "scale_bb", "alpha_ab", "loc_ab", "scale_ab", "min_value", "max_value", "step", "threshold", "boundary_mean", "boundary_std", "n_times", "n_fail"])
+            # サイクルごとにresultsが返ってくるので、それらを結合する
+            if idx == 0:
+                df_all = df
+            else:
+                df_all = pd.concat([df_all, df], axis=0)
+        
+        # df_allをCSVにする
+        # 小数点以下の桁数を指定する 4桁
+        pd.options.display.float_format = '{:.4f}'.format
+        # CSVにする
+        df_all.to_csv("scanABwithNearAA.csv", index=False)
     
     # 総合的なシミュレーションを実施できるクラス関数
     # skewed gaussianのパラメータであるloc, scale, alphaを変更して、クラスタリングを行い、その結果を評価する
@@ -503,4 +570,6 @@ if __name__ == "__main__":
     shca=SimHCA(100, aa_sets=aa_sets, ab_sets=ab_sets, bb_sets=bb_sets)
 
     n_cycle = int(sys.argv[1])
-    shca.simSmallerDiff("AB", "loc", 0.97, 1.00, 0.003, n_cycle, 0.6)
+    #shca.simSmallerDiff("AB", "loc", 0.97, 1.00, 0.003, n_cycle, 0.6)
+     
+    shca.scanABwithNearAA(0.9883, 0.9945, 0.001, 0.97, 1.00, 0.003, 0.6, n_cycle)

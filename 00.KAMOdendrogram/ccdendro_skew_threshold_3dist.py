@@ -13,19 +13,19 @@ n_each = int(n_total/2.0)
 
 # alpha, loc, scale
 # AA
-alpha_aa = -15.2177
-loc_aa = 0.9945
-scale_aa = 0.0195
-
-# AB
-alpha_ab = -11.3798
-loc_ab = 0.990
-scale_ab = 0.0277
+alpha_aa = -4122.2582
+loc_aa = 0.9961
+scale_aa = 0.0147
 
 # BB
-alpha_bb = -8.4750
-loc_bb = 0.9883
-scale_bb = 0.0251
+alpha_bb = -4122
+loc_bb = 0.9961
+scale_bb = 0.0147
+
+# AB
+alpha_ab = -7.23
+loc_ab = 0.9948
+scale_ab = 0.0110
 
 sample_dict=[{"name":"A-A","alpha":alpha_aa,"loc":loc_aa,"scale":scale_aa},
              {"name":"A-B","alpha":alpha_ab,"loc":loc_ab,"scale":scale_ab},
@@ -45,7 +45,7 @@ if n_exist != 0:
 # Dendrogram title
 title_s = "INPUT: (%s: alpha: %8.3f loc:%8.3f scale:%8.3f)(%s alpha:%8.3f loc:%8.3f scale:%8.3f)(%s: alpha:%8.3f loc:%8.3f scale:%8.3f)" \
     % (sample_dict[0]['name'], sample_dict[0]['alpha'],sample_dict[0]['loc'], sample_dict[0]['scale'], \
-    sample_dict[1]['name'], sample_dict[1]['alpha'],sample_dict[1]['loc'], sample_dict[1]['scale'], \
+    sample_dict[1]['name'], sample_dict[1]['alpha'],sample_dict[1]['loc'], sample_dict[1]['scale'], 
     sample_dict[2]['name'], sample_dict[2]['alpha'],sample_dict[2]['loc'], sample_dict[2]['scale'])
 
 def get_stat_info(cc_combination):
@@ -142,7 +142,7 @@ mode_aa = find_mode(aaa)
 mode_ab = find_mode(aba)
 mode_bb = find_mode(bba)
 
-ax1.set_xlim(0.70,1.0)
+ax1.set_xlim(0.8,1.0)
 #ax1.hist([apo_apo,apo_ben,ben_ben],bins=20,label=["apo-apo","apo-ben", "ben-ben"],alpha=0.5)
 ax1.hist(aaa,bins=20,alpha=0.5,label="AA", density=True)
 ax1.hist(aba,bins=20,alpha=0.5,label="AB", density=True)
