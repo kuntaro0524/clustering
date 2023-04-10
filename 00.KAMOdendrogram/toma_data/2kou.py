@@ -23,7 +23,9 @@ def binom_pmf(x, n, p):
 popt, pcov = curve_fit(binom_pmf, np.arange(num_bins), hist)
 
 # フィットした二項分布をプロット
-x = np.arange(num_bins)
+#x = np.arange(num_bins)
+x = np.arange(0,1,0.001)
+
 plt.plot(bin_centers, binom_pmf(x, *popt), 'r-', label="Fitted Binomial Distribution")
 
 # CCデータのヒストグラムをプロット
@@ -32,4 +34,3 @@ plt.xlabel("CC")
 plt.ylabel("Frequency")
 plt.legend()
 plt.show()
-

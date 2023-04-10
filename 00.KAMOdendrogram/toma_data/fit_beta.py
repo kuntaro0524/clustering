@@ -75,12 +75,16 @@ def fit(cc_df, cc_threshold = 0.8):
     def betaprime_pdf(x,alpha,beta):
         return betaprime.pdf(x,alpha,beta)
 
+    # 第二種ベータ分布の確率密度関数
+    def betaprime_pdf(x, alpha, beta):
+        return betaprime.pdf(1-x, alpha, beta)
+
     # 初期値の設定と最小二乗法の計算
     mean = np.log(0.9)   # 対数正規分布の平均
 
-    initial_guess = [1.5, np.log(0.9), np.exp(mean)]
-    popt, pcov = curve_fit(log_norm, bin_centers, hist, p0=initial_guess)
-    alpha_fit, loc_fit, scale_fit = popt
+    initial_guess = [1.5, 2.5]
+    popt, pcov = curve_fit(betaprime_pdf, bin_centers, hist, p0=initial_guess)
+    alpha,beta = popt
 
     # Histogram drawing
     plt.hist(ccdata, bins=n_bins, color='green', alpha=0.5)
@@ -89,12 +93,11 @@ def fit(cc_df, cc_threshold = 0.8):
 
     # Plotting the resultant skewed gaussian function
     xrange=np.arange(0.1,1,0.001)
-    plt.plot(xrange, log_norm(xrange, *popt), 'r-', label='Fitted Skew Gaussian')
+    plt.plot(xrange, betaprime_pdf(xrange, *popt), 'r-', label='Fitted Skew Gaussian')
     plt.xlim(0.8,1)
 
-    plt.annotate(f"Alpha: {alpha_fit:.4f}", xy=(0.6, 0.85), xycoords='axes fraction')
-    plt.annotate(f"Loc: {loc_fit:.4f}", xy=(0.6, 0.75), xycoords='axes fraction')
-    plt.annotate(f"Scale: {scale_fit:.4f}", xy=(0.6, 0.65), xycoords='axes fraction')
+    plt.annotate(f"Alpha: {alpha:.4f}", xy=(0.6, 0.85), xycoords='axes fraction')
+    plt.annotate(f"Beta: {beta:.4f}", xy=(0.6, 0.75), xycoords='axes fraction')
     
     plt.tight_layout()
     plt.legend()
