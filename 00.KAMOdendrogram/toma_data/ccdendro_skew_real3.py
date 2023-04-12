@@ -14,20 +14,24 @@ n_each = int(n_total/2.0)
 # alpha, loc, scale
 # AA
 
-# 0076
-alpha_aa = 1.1245
-loc_aa = -0.0014
-scale_aa = 0.0149
-
 # 0072
-alpha_bb = 0.6431
-loc_bb = 0.0048
-scale_bb = 0.0116
+alpha_aa = -7.36 
+loc_aa = 0.9952
+scale_aa = 0.0153
+
+# 0076
+alpha_bb = -4122.9
+loc_bb = 0.9961
+scale_bb = 0.0147
 
 # 0072/0076
-alpha_ab = 0.5109
-loc_ab = -0.0014
-scale_ab = 0.0149
+alpha_ab = -5.9083
+loc_ab = 0.9875
+scale_ab = 0.0267
+
+#Cluster 0072: alpha=-7.3603, loc=0.9952, scale=0.0153
+#Cluster 0076: alpha=-4122.9048, loc=0.9961, scale=0.0147
+#Cluster 0072 and 0076: alpha=-5.9083, loc=0.9875, scale=0.0267
 
 sample_dict=[{"name":"A-A","alpha":alpha_aa,"loc":loc_aa,"scale":scale_aa},
              {"name":"A-B","alpha":alpha_ab,"loc":loc_ab,"scale":scale_ab},
@@ -61,9 +65,10 @@ def make_skew_random_cc(stat_dict):
     alpha=stat_dict['alpha']
     loc=stat_dict['loc']
     scale=stat_dict['scale']
-    randcc=1-lognorm.rvs(alpha, loc, scale)
+    #randcc=1-lognorm.rvs(alpha, loc, scale)
+    rtn_value = skewnorm.rvs(alpha, loc, scale)
 
-    return randcc
+    return rtn_value
 
 sample_list=[]
 for i in np.arange(0,n_each):
