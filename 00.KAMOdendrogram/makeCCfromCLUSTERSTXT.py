@@ -20,11 +20,19 @@ def get_id_list_from_clusters(cluster_number, file_path="CLUSTERS.txt"):
 
     return id_list
 
-
-def get_cc_values_from_cctable(cluster_number, clusters_file="CLUSTERS.txt", cctable_file="cctable.dat"):
+def get_cc_values_from_cctable(cluster_number, clusters_file="CLUSTERS.txt", cctable_file="cctable.dat", listname="filenames.lst"):
     id_list = get_id_list_from_clusters(cluster_number, clusters_file)
 
     cc_values = []
+
+    # filename_listを読み込む(リストに格納)
+    filename_list = []
+    with open(listname, "r") as f:
+        lines = f.readlines()
+        for line in lines:
+            filename_list.append(line.strip())
+
+    cctype_list=[]
 
     with open(cctable_file, "r") as f:
         lines = f.readlines()
@@ -33,10 +41,15 @@ def get_cc_values_from_cctable(cluster_number, clusters_file="CLUSTERS.txt", cct
             i, j = int(cols[0]), int(cols[1])
 
             if i in id_list and j in id_list:
+                name_i = filename_list[i]
+                name_j = filename_list[j]
+                cctype_list.append(name_i + "_" + name_j)
                 cc_values.append(float(cols[2]))
 
     # cc_values が格納されたDataFrameを返す
     ret = pd.DataFrame(cc_values, columns=["cc"])
+    # retにcctype_listを追加する
+    ret["cctype"] = cctype_list
     
     return ret
 
@@ -52,7 +65,10 @@ def fit(cc_df, cc_threshold = 0.8):
     # CC data array
     ccdata = cc_df['cc']
     n_bins = int(len(ccdata) / 8)
-    print(n_bins)
+
+    # cc type list
+    cctype_list = cc_df['cctype']
+    print(cctype_list)
 
     # 初期値？
     hist, bin_edges = np.histogram(ccdata, bins=n_bins)
@@ -98,6 +114,9 @@ if __name__ == "__main__":
             rtn_df = ccdf
         else:
             rtn_df = pd.concat([rtn_df, ccdf], axis=0)
+
+    # ここで cc_df の長さを表示する
+    print("cc_df length: ", len(rtn_df))
 
     #print(f"CC values for cluster {cluster_number}: {cc_values}")
     fit(cc_df=rtn_df, cc_threshold = 0.8)

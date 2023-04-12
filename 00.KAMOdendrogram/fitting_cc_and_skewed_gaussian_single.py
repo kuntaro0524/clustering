@@ -12,9 +12,8 @@ cctable = pd.read_csv(cctable_path, delim_whitespace=True)
 
 # Input parameters
 cc_threshold=float(sys.argv[1])
-n_bins = int(sys.argv[2])
 # ana_type: ["AA", "BB", "AB"]
-ana_type = (sys.argv[3])
+ana_type = (sys.argv[2])
 
 if ana_type!="AA" and ana_type!="BB" and ana_type!="AB":
     print("Error!! AB or BB or AB")
@@ -61,6 +60,7 @@ elif ana_type=="BB":
     ccdata = cc_benz_benz
     n_bins = int(len(ccdata) / 8)
 
+print(f"LENGTH={len(ccdata):d}")
 # 初期値？
 hist, bin_edges = np.histogram(ccdata, bins=n_bins)
 bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
@@ -84,7 +84,6 @@ plt.ylabel('Frequency')
 
 # Plotting the resultant skewed gaussian function
 plt.plot(bin_centers, skewed_gaussian(bin_centers, *popt), 'r-', label='Fitted Skew Gaussian')
-
 
 plt.annotate(f"Alpha: {alpha_fit:.4f}", xy=(0.6, 0.85), xycoords='axes fraction')
 plt.annotate(f"Loc: {loc_fit:.4f}", xy=(0.6, 0.75), xycoords='axes fraction')
