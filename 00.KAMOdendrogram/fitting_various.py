@@ -5,7 +5,8 @@ from scipy.optimize import curve_fit
 from scipy.stats import skewnorm
 from matplotlib import pyplot as plt
 from scipy.stats import beta,betaprime
-
+# logging
+import logging
 
 class FittingVarious():
     def __init__(self):
@@ -14,6 +15,19 @@ class FittingVarious():
         self.func_name = ["skewed gaussian", "beta pdf", "log_norm", "betaprime_pdf","sk noise"]
 
         self.isDebug = False
+
+        # logger を設定する
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
+        # ファイルハンドラーを作成する
+        fh = logging.FileHandler('fitting_various.log')
+        fh.setLevel(logging.DEBUG)
+        # フォーマッターを作成する
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        # フォーマッターを設定する
+        fh.setFormatter(formatter)
+        # ハンドラーを追加する
+        self.logger.addHandler(fh)
 
     def get_id_list_from_clusters(self, cluster_number, file_path="CLUSTERS.txt"):
         id_list = []
@@ -128,7 +142,7 @@ class FittingVarious():
         #print(n_bins)
 
         # 初期値ヒストグラムを決定→フィッティングのクオリティはnbinsに敏感である
-        hist, bin_edges = np.histogram(ccdata, bins=nbins)
+        hist, bin_edges = np.histogram(ccdata, bins='auto')
         bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
 
         return hist, bin_centers, bin_edges
@@ -143,16 +157,11 @@ class FittingVarious():
         sigma_data = np.std(cc_df['cc'])
         median_data = np.median(cc_df['cc'])
         # CCの標準偏差を表示する
-        print("sigma_data: ", sigma_data)
-        print("median_data: ", median_data)
+        self.logger.info(f"{sigma_data}")
+        self.logger.info(f"{median_data}")
 
         # ヒストグラムを取得する
         hist, bin_centers, bin_edges = self.getHist(cc_df, cc_threshold, nbins)
-
-        # 初期値の設定と最小二乗法の計算
-        mean = np.log(0.9)   # 対数正規分布の平均
-
-        # model functionsを得る
         model_funcs = self.getModelFunctions()
 
         # 各モデル関数をフィットして、AICを計算
@@ -160,23 +169,55 @@ class FittingVarious():
         popt_list = []
         for func, initial_guess,func_name in zip(model_funcs, self.initial_params,self.func_name):
             print(func_name)
-            popt, pcov = curve_fit(func, bin_centers, hist, p0=initial_guess)
-            popt_list.append(popt)
-            residuals = hist - func(bin_centers, *popt)
-            sse = np.sum(residuals**2)
-            aic = 2 * len(initial_guess) + len(bin_centers) * np.log(sse / len(bin_centers))
-            aic_list.append(aic)
+            # フィッティングを実施する
+            # フィッティングには失敗する可能性があるので、その場合はエラーを出力する
+            try:
+                popt, pcov = curve_fit(func, bin_centers, hist, p0=initial_guess)
+                popt_list.append(popt)
+                residuals = hist - func(bin_centers, *popt)
+                sse = np.sum(residuals**2)
+                aic = 2 * len(initial_guess) + len(bin_centers) * np.log(sse / len(bin_centers))
+                aic_list.append(aic)
+                self.logger.info(f"AIC: {aic} for {func_name}")
+                self.logger.info(f"popt: {popt}")
+            except RuntimeError as e:
+                self.logger.info(f"Error - {func_name} - curve_fit failed")
+                self.logger.info(e)
 
         # aic_list, model_funcs, popt_listを返す
         return aic_list, model_funcs, popt_list
+
+    # 定義したモデル式のリストにしたがってクラスタリングを実施する self.model_funcs
+    # モデル式へのフィッティングは失敗することがあるのでその場合にはフィッティングに失敗した理由を表示する
+    # モデル式のフィッティングに成功した場合には、フィッティング結果を表示する
+    def fitAll(self, clst1_name, clst2_name, cc_threshold, nbins=20):
+        # dataframeの準備
+        df1, df2, df12 = self.prepareDataframes(clst1_name, clst2_name, cc_threshold=cc_threshold)
+
+        # self.model_funcsにしたがって３つのデータフレーム(df1,df2,df12)に対してフィッティングを実施する
+        model_funcs = self.getModelFunctions()
+        for model_func in self.model_funcs:
+            self.logger.info(f"######### Model function {model_func.__name__}")
+            for curr_df in [df1, df2, df12]:
+                # dataframeの名前を表示する(最初の行の)
+                self.logger.info(curr_df.iloc[0]['cctype'])
+                # フィッティングを実施する
+                # フィッティングに成功した場合には、フィッティング結果を表示する
+                # フィッティングに失敗した場合には、その理由を表示する
+                # フィッティングに失敗した場合には、以降のdf1,df2,df12に対するフィッティングは実施せず
+                # 次のmodel_funcに対してフィッティングを実施する
+                try:
+                    aic_list, model_funcs, popt_list = self.fit(curr_df, cc_threshold=cc_threshold, nbins=nbins)
+                    for aic, model_func, popt in zip(aic_list, model_funcs, popt_list):
+                        self.logger.info(f"AIC: {aic:.2f}, Model: {model_func.__name__}, Params: {popt}")
+                except RuntimeError as e:
+                    print(e)
+                    break
     
     # クラスター番号を２つ引数から取得して、それぞれのクラスターに含まれるCCについて以下の検討を実施する
     def run(self, clst1_name, clst2_name, cc_threshold, nbin=20):
-        # 1. クラスタ番号ごとにCCの分布を取得（クラス関数：get_cc_values_from_cctable）
-        # 2. クラスタ番号を cluster1, cluster2 とした場合、CCの取得は cluster1単体、cluster2単体、cluster1とcluster2の合成データについて取得する
-        cc_df1 = self.get_cc_values_from_cctable(clst1_name)
-        cc_df2 = self.get_cc_values_from_cctable(clst2_name)
-        cc_both = pd.concat([cc_df1, cc_df2])
+        # dataframeの準備
+        df1, df2, df12 = self.prepareDataframes(clst1_name, clst2_name, cc_threshold=cc_threshold)
         
         # 上記３種類のDataframeでヒストグラムを作成
         # ヒストグラムに対して、各モデル関数をフィッティングする
@@ -194,10 +235,10 @@ class FittingVarious():
         for ax in axs.flatten():
             ax.set_xlim(0.8, 1.0)
         
-        for idx,cc_df in enumerate([cc_df1, cc_df2, cc_both]):
+        for idx,cc_df in enumerate([df1, df2, df12]):
             # ヒストグラムを取得する
             hist, bin_centers, bin_edges = self.getHist(cc_df, cc_threshold, nbin)
-            plt.hist(cc_df['cc'],alpha=0.5,bins=nbin)
+            plt.hist(cc_df['cc'],alpha=0.5,bins='auto')
             plt.show()
             # フィッティングを実施
             aic_list, model_funcs, popt_list = self.fit(cc_df, cc_threshold, nbin)
@@ -253,9 +294,9 @@ class FittingVarious():
 
         # それぞれのクラスタについて、データの数を表示（１行）
         # それぞれのクラスタについて、CCの平均値を表示（１行）
-        print(f"cluster1: {len(df1)}")
-        print(f"cluster2: {len(df2)}")
-        print(f"cluster1 and cluster2: {len(df12)}")
+        self.logger.info(f"cluster1: {len(df1)}")
+        self.logger.info(f"cluster2: {len(df2)}")
+        self.logger.info(f"cluster1 and cluster2: {len(df12)}")
         
         return df1,df2,df12
     
@@ -275,7 +316,6 @@ class FittingVarious():
         for idx, cc_df in enumerate([df1, df2, df12]):
             # ヒストグラムを取得する
             hist, bin_centers, bin_edges = self.getHist(cc_df, cc_threshold, nbins)
-            #axs[1,1].bar(bin_edges[:-1], hist, width=(bin_edges[1]-bin_edges[0]), align='edge', alpha=0.5)
 
             # cc_dfのhistgramを表示(帯) histを利用する
             # axsのインデックスは(行、列)
@@ -387,4 +427,4 @@ if __name__ == "__main__":
     elif options.process_type == "logscale":
         ccModel.runLogscale(options.cluster1, options.cluster2, float(options.cc_threshold), int(options.nbins))
     elif options.process_type == "fit_various":
-        ccModel.run(options.cluster1, options.cluster2, float(options.cc_threshold), int(options.nbins))
+        ccModel.fitAll(options.cluster1, options.cluster2, float(options.cc_threshold), int(options.nbins))

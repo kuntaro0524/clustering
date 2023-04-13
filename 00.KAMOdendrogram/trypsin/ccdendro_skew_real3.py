@@ -11,20 +11,65 @@ from scipy.cluster.hierarchy import fcluster
 n_total=int(sys.argv[1])
 n_each = int(n_total/2.0)
 
-# 0072
-alpha_aa = -7.3603
-loc_aa = 0.9952
-scale_aa = 0.0153
+# NBIN len(cc)/8.0
+# Cluster 0072: alpha=-7.4797, loc=0.9878, scale=0.0224
+# Cluster 0076: alpha=-22.2418, loc=0.9947, scale=0.0218
+# Cluster 0072 and 0076: alpha=-10.4014, loc=0.9800, scale=0.0274
 
-# 0076
-alpha_bb = -4122.9
-loc_bb = 0.9961
-scale_bb = 0.0147
+# NBIN len(cc)/10.0
+# Cluster 0072: alpha=-5.6823, loc=0.9868, scale=0.0187
+# Cluster 0076: alpha=-11.0832, loc=0.9943, scale=0.0174
+# Cluster 0072 and 0076: alpha=-9.9534, loc=0.9794, scale=0.0229
 
-# 0072/0076
-alpha_ab = -5.9083
-loc_ab = 0.9875
-scale_ab = 0.0267
+# 10 
+# Cluster 0072: alpha=-5.6823, loc=0.9868, scale=0.0187
+# Cluster 0071: alpha=-20.7491, loc=0.9948, scale=0.0238
+# Cluster 0072 and 0071: alpha=-10.3442, loc=0.9797, scale=0.0246
+
+# alpha, loc, scale
+# AA
+alpha_aa = -5.6823
+loc_aa = 0.9868
+scale_aa = 0.0187
+
+# BB
+alpha_bb = -22.7491
+loc_bb = 0.9948
+scale_bb = 0.0238
+
+# AB
+alpha_ab = -10.3442
+loc_ab = 0.9797
+scale_ab = 0.0246
+
+#Cluster 0072: alpha=-7.4797, loc=0.9878, scale=0.0224
+#Cluster 0071: alpha=-19.2150, loc=0.9954, scale=0.0301
+#Cluster 0072 and 0071: alpha=-11.3036, loc=0.9803, scale=0.0298
+alpha_aa = -7.4797
+loc_aa = 0.9878
+scale_aa = 0.0224
+
+alpha_bb=-19.2150
+loc_bb=0.9954
+scale_bb=0.0301
+
+alpha_ab=-11.3036
+loc_ab=0.9803
+scale_ab=0.0298
+
+#72        465 0.9594 0.0288 0.9685 -7.4797 0.9878 0.0224
+#both     2035 0.8820 0.1090 0.9324 -7.2450 0.9779 0.0150
+alpha_aa = -19.2150 
+loc_aa = 0.9954
+scale_aa = 0.0301
+
+alpha_bb= -7.4797
+loc_bb= 0.9594
+scale_bb= 0.0224
+
+alpha_ab=-7.245
+loc_ab=0.9779
+scale_ab=0.8820
 
 sample_dict=[{"name":"A-A","alpha":alpha_aa,"loc":loc_aa,"scale":scale_aa},
              {"name":"A-B","alpha":alpha_ab,"loc":loc_ab,"scale":scale_ab},

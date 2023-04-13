@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 from matplotlib import gridspec
 from scipy.cluster import hierarchy
 from scipy.stats import skewnorm
-from scipy.stats import betaprime
 from scipy.cluster.hierarchy import fcluster
 
 #scale=float(sys.argv[1])
@@ -15,23 +14,52 @@ n_each = int(n_total/2.0)
 # alpha, loc, scale
 # AA
 
-# 0076
-alpha_aa = 2.5052
-loc_aa = 164.9292
-
 # 0072
-alpha_bb = 3.0001
-loc_bb = 179
+alpha_aa = -7.3603
+loc_aa = 0.9952
+scale_aa = 0.0153
+
+# 0076
+alpha_bb = -4122.9
+loc_bb = 0.9961
+scale_bb = 0.0147
 
 # 0072/0076
-alpha_ab = 3.5744
-loc_ab = 244.1206
+alpha_ab = -5.9083
+loc_ab = 0.9875
+scale_ab = 0.0267
 
-sample_dict=[{"name":"A-A","alpha":alpha_aa,"loc":loc_aa},
-             {"name":"A-B","alpha":alpha_ab,"loc":loc_ab},
-             {"name":"B-B","alpha":alpha_bb,"loc":loc_bb}]
+#Cluster 0072: alpha=-7.3603, loc=0.9952, scale=0.0153
+#Cluster 0076: alpha=-4122.9048, loc=0.9961, scale=0.0147
+#Cluster 0072 and 0076: alpha=-5.9083, loc=0.9875, scale=0.0267
 
-figname="test"
+# bin_div = 18
+# cc >= 0.8
+#      946 0.9790 0.0163 0.9839 -3.1591 0.9929 0.0080
+#      561 0.9567 0.0458 0.9789 0.0036 0.9891 0.0051
+#     1599 0.9465 0.0430 0.9617 -3.3783 0.9840 0.0146
+# 0072
+alpha_aa = -3.1591
+loc_aa = 0.9929
+scale_aa = 0.0080
+
+# 0076
+alpha_bb = 0.0036
+loc_bb = 0.9891
+scale_bb = 0.0051
+
+# 0072/0076
+alpha_ab = -3.3783
+loc_ab = 0.9840
+scale_ab = 0.0146
+
+sample_dict=[{"name":"A-A","alpha":alpha_aa,"loc":loc_aa,"scale":scale_aa},
+             {"name":"A-B","alpha":alpha_ab,"loc":loc_ab,"scale":scale_ab},
+             {"name":"B-B","alpha":alpha_bb,"loc":loc_bb,"scale":scale_bb}]
+
+# Figure name
+figname="alpha_%.1f_%.3f_%.3f_N%05d" % (
+    sample_dict[1]['alpha'],sample_dict[1]['loc'], sample_dict[1]['scale'], n_total)
 
 files=glob.glob("%s*"%figname)
 n_exist=len(files)
@@ -40,7 +68,12 @@ if n_exist != 0:
     figname="%s_%02d"%(figname,index)
 
 # Dendrogram title
-title_s="title"
+title_s = "INPUT: (%s: alpha: %8.3f loc:%8.3f scale:%8.3f)(%s alpha:%8.3f loc:%8.3f scale:%8.3f)(%s: alpha:%8.3f loc:%8.3f scale:%8.3f)" \
+    % (sample_dict[0]['name'], sample_dict[0]['alpha'],sample_dict[0]['loc'], sample_dict[0]['scale'], \
+    sample_dict[1]['name'], sample_dict[1]['alpha'],sample_dict[1]['loc'], sample_dict[1]['scale'], \
+    sample_dict[2]['name'], sample_dict[2]['alpha'],sample_dict[2]['loc'], sample_dict[2]['scale'])
+
+print(title_s)
 
 def get_stat_info(cc_combination):
     for idx,s in enumerate(sample_dict):
@@ -51,9 +84,11 @@ from scipy.stats import lognorm
 def make_skew_random_cc(stat_dict):
     alpha=stat_dict['alpha']
     loc=stat_dict['loc']
-    randcc=1-betaprime.rvs(alpha, loc)
+    scale=stat_dict['scale']
+    #randcc=1-lognorm.rvs(alpha, loc, scale)
+    rtn_value = skewnorm.rvs(alpha, loc, scale)
 
-    return randcc
+    return rtn_value
 
 sample_list=[]
 for i in np.arange(0,n_each):
@@ -114,6 +149,16 @@ ax1.hist(aaa,bins=20,alpha=0.5,label="AA")
 ax1.hist(aba,bins=20,alpha=0.5,label="AB")
 ax1.hist(bba,bins=20,alpha=0.5,label="BB")
 ax1.legend(loc="upper left")
+
+outfile=open("results.dat","w")
+outfile.write("AA(alpha,loc,scale)=%12.5f %12.5f %12.5f\n"% (alpha_aa, loc_aa, scale_aa))
+outfile.write("AB(alpha,loc,scale)=%12.5f %12.5f %12.5f\n"% (alpha_ab, loc_ab, scale_ab))
+outfile.write("BB(alpha,loc,scale)=%12.5f %12.5f %12.5f\n"% (alpha_bb, loc_bb, scale_bb))
+
+outfile.write("AA(mean,std,median)=%12.5f %12.5f %12.5f\n"% (aaa.mean(), aaa.std(), np.median(aaa)))
+outfile.write("AB(mean,std,median)=%12.5f %12.5f %12.5f\n"% (aba.mean(), aba.std(), np.median(aba)))
+outfile.write("BB(mean,std,median)=%12.5f %12.5f %12.5f\n"% (bba.mean(), bba.std(), np.median(bba)))
+outfile.close()
 
 plt.savefig("cc_dist.png")
 

@@ -7,13 +7,13 @@ sigma1 = 0.5109
 mean1 = -0.0014
 scale1 = 0.0149
 
-sigma2 = 1.1245
-mean2 =  0.0048
-scale2 = 0.0116
+sigma2 = 0.64307
+mean2 =  1.16E-4
+scale2 = 1.52E-2
 
-sigma3 = 0.6431
-mean3 =  0.0001
-scale3 = 0.0152
+sigma3 = 0.8376
+mean3 =  0.00152
+scale3 = 0.01265
 
 # X軸の範囲を設定
 x = np.linspace(0.01, 1, 1000)

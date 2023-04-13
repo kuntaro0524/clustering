@@ -1,16 +1,16 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.stats import betaprime
+from scipy.stats import betaprime,skewnorm
 
 # パラメータを設定
 a1 = 3.5744
-b1 = 244
-
+b1 = 244.1206
 a2 = 3.0001
 b2 = 179
 
-a3 = 2.5
-b3 = 165
+a3=-7.985
+b3=0.9952
+c3=0.0128
 
 # X軸の範囲を設定
 x = np.linspace(0.01, 1, 1000)
@@ -18,7 +18,7 @@ x = np.linspace(0.01, 1, 1000)
 # 対数正規分布の確率密度関数を計算
 y1 = betaprime.pdf(1-x, a1, b1)
 y2 = betaprime.pdf(1-x, a2, b2)
-y3 = betaprime.pdf(1-x, a3, b3)
+y3 = skewnorm.pdf(x, a3, b3, c3)
 
 # 対数正規分布をプロット
 plt.plot(x, y1, label="Lognormal AB")
