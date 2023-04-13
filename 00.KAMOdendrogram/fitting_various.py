@@ -269,12 +269,9 @@ class FittingVarious():
         # subplotの配置を設定
         # プロット領域は４つ準備する。二段に分けて、上段はCC分布をdataframeごとにプロット（３領域）
         # 下段はCC分布を合成したものをプロット（１領域）
-        fig, axs = plt.subplots(nrows=2, ncols=3, figsize=(15, 15))
-        # すべてX軸は 0.8~1.0の表示する
-        # for文ですべてのaxsに対して設定する
-        #for ax in axs.flatten():
-            #ax.set_xlim(0.8, 1.0)
-            
+        fig = plt.figure(figsize=(20, 10))
+        axall = fig.add_subplot(2, 1, 2)
+
         for idx, cc_df in enumerate([df1, df2, df12]):
             # ヒストグラムを取得する
             hist, bin_centers, bin_edges = self.getHist(cc_df, cc_threshold, nbins)
@@ -282,22 +279,27 @@ class FittingVarious():
 
             # cc_dfのhistgramを表示(帯) histを利用する
             # axsのインデックスは(行、列)
-            axs[0,idx].hist(cc_df['cc'], bins=nbins, alpha=0.5)
-            axs[0,idx].set_title("histgram")
-            axs[0,idx].set_xlabel("CC")
-            axs[0,idx].set_ylabel("count")
-            #axs[0,idx].set_title(f"{clst1_nameame}")
-            axs[0,idx].set_xlabel("CC")
-            axs[0,idx].set_ylabel("count")
-            # ３つ重ねたCC分布
-            axs[1,0].hist(cc_df['cc'], bins=nbins, alpha=0.5)
-            axs[1,0].set_title("histgram")
-            axs[1,0].set_xlabel("CC")
-            axs[1,0].set_ylabel("count")
-            axs[1,0].set_title("CC_both")
-            axs[1,0].set_xlabel("CC")
-            axs[1,0].set_ylabel("count")
+            ax = fig.add_subplot(2, 3, idx+1)
+            ax.hist(cc_df['cc'], bins=nbins, alpha=0.5)
+            ax.set_title("histgram")
+            ax.set_xlabel("CC")
+            ax.set_ylabel("count")
+            ax.set_xlim(0.8, 1.0)
+            # 2行目の真ん中
+            # 以前のプロットは保持する
+            # 3つのCC分布を重ねる
 
+            # idxによって色を変更
+            if idx == 0:
+                axall.hist(df1['cc'], bins=nbins, alpha=0.5, color="red")
+            elif idx == 1:
+                axall.hist(df2['cc'], bins=nbins, alpha=0.5, color="blue")
+            else:
+                axall.hist(df12['cc'], bins=nbins, alpha=0.5, color="green")
+            axall.set_title("histgram")
+            axall.set_xlabel("CC")
+            axall.set_ylabel("count")
+            axall.set_xlim(0.8, 1.0)
 
         plt.subplots_adjust(wspace=0.6, hspace=0.6)
         plt.savefig("histgram.png")
