@@ -13,9 +13,13 @@ class FittingVarious():
         #self.func_name = ["skewed gaussian", "beta pdf", "log_norm", "betaprime_pdf","sk noise", "log noise"]
         self.func_name = ["skewed gaussian", "beta pdf", "log_norm", "betaprime_pdf","sk noise"]
 
-    # CLUSTERS.txtを読み取り、クラスター番号を指定して、そのクラスターに含まれるIDのリストを返す
-    def get_id_list_from_clusters(self,cluster_number, file_path="CLUSTERS.txt"):
+        self.isDebug = False
+
+    def get_id_list_from_clusters(self, cluster_number, file_path="CLUSTERS.txt"):
         id_list = []
+
+        print("#############")
+        print(file_path)
 
         with open(file_path, "r") as f:
             lines = f.readlines()
@@ -25,25 +29,48 @@ class FittingVarious():
                 if cols[0] == cluster_number:
                     id_list = [int(ID) - 1 for ID in cols[3:]]
                     break
+
         return id_list
 
-    # cctable.datを読み取り、クラスター番号を指定して、そのクラスターに含まれるCCの値のリストを返す
-    def get_cc_values_from_cctable(self, cluster_number, clusters_file="CLUSTERS.txt", cctable_file="cctable.dat"):
-        id_list = self.get_id_list_from_clusters(cluster_number, clusters_file)
+    def get_cc_various_values_from_cctable(self, cluster_number1, cluster_number2, clusters_file="CLUSTERS.txt", cctable_file="cctable.dat", listname="filenames.lst"):
+        id_list1 = self.get_id_list_from_clusters(cluster_number1, clusters_file)
+        id_list2 = self.get_id_list_from_clusters(cluster_number2, clusters_file)
+
+        # isDebugがTrueの場合は、id_list1とid_list2を表示する
+        if self.isDebug:
+            print(id_list1)
+            print(id_list2)
 
         cc_values = []
+        cctype_list=[]
+
+        # 同じクラスタIDに含まれるインデックスどうし、または異なるクラスタIDに含まれるインデックスどうしのCC値を取得する
+        # iとjの両方がid_list1に含まれている場合には対応するCC値を取得→type: "AA"をキーとしてccをdictに格納→配列として保存する
+        # iがid_list1に含まれているか、jがid_list2に含まれている場合 またはiがid_list2に含まれているか、jがid_list1に含まれている場合には "AB" をキーとしてccをdictに格納→配列として保存する
+        # iとjの両方がid_list2に含まれている場合には "BB" をキーとしてccをdictに格納→配列として保存する
 
         with open(cctable_file, "r") as f:
             lines = f.readlines()
             for line in lines[1:]:
                 cols = line.split()
                 i, j = int(cols[0]), int(cols[1])
-
-                if i in id_list and j in id_list:
+                # iとjの両方がid_list1に含まれている場合には対応するCC値を取得→type: "AA"をキーとしてccをdictに格納→配列として保存する
+                if i in id_list1 and j in id_list1:
+                    cctype_list.append("AA")
+                    cc_values.append(float(cols[2]))
+                # iとjの両方がid_list2に含まれている場合には "BB" をキーとしてccをdictに格納→配列として保存する
+                elif i in id_list2 and j in id_list2:
+                    cctype_list.append("BB")
+                    cc_values.append(float(cols[2]))
+                # それ以外の場合はABとなる
+                else:
+                    cctype_list.append("AB")
                     cc_values.append(float(cols[2]))
 
         # cc_values が格納されたDataFrameを返す
         ret = pd.DataFrame(cc_values, columns=["cc"])
+        # retにcctype_listを追加する
+        ret["cctype"] = cctype_list
     
         return ret
     
@@ -203,25 +230,37 @@ class FittingVarious():
         plt.savefig("histgram.png")
         plt.show()
 
-    def fittingCluster(self, clst1_name, cc_threshold, fitting_funcname, nbin_ratio=8):
-        # 1. クラスタ番号ごとにCCの分布を取得（クラス関数：get_cc_values_from_cctable）
-        cc_df1 = self.get_cc_values_from_cctable(clst1_name)
-        # CCのしきい値でフィルタリング
-        cc_df1 = cc_df1[cc_df1["cc"] > cc_threshold]
-
-    
-    def plotHistOnly(self, clst1_name, clst2_name, cc_threshold, nbins=20):
+    # Arguments
+    # clst1_name: cluster name 1
+    # clst2_name: cluster name 2
+    # cc_threshold: CC threshold
+    def prepareDataframes(self, clst1_name, clst2_name, cc_threshold):
         # 1. クラスタ番号ごとにCCの分布を取得（クラス関数：get_cc_values_from_cctable）
         # 2. クラスタ番号を cluster1, cluster2 とした場合、CCの取得は cluster1単体、cluster2単体、cluster1とcluster2の合成データについて取得する
-        cc_df1 = self.get_cc_values_from_cctable(clst1_name)
-        cc_df2 = self.get_cc_values_from_cctable(clst2_name)
-        cc_both = pd.concat([cc_df1, cc_df2])
+        alldf = self.get_cc_various_values_from_cctable(clst1_name, clst2_name)
+
+        # cctypeが"AA"のもの
+        df1 = alldf[alldf["cctype"] == "AA"]
+        # cctypeが"BB"のもの
+        df2 = alldf[alldf["cctype"] == "BB"]
+        # cctypeが"AB"のもの
+        df12 = alldf[alldf["cctype"] == "AB"]
+
+        # 'cc' が cc_threshold 以上のもののみを抽出
+        df1 = df1[df1["cc"] > cc_threshold]
+        df2 = df2[df2["cc"] > cc_threshold]
+        df12 = df12[df12["cc"] > cc_threshold]
 
         # それぞれのクラスタについて、データの数を表示（１行）
         # それぞれのクラスタについて、CCの平均値を表示（１行）
-        print(f"cluster1: {len(cc_df1)}")
-        print(f"cluster2: {len(cc_df2)}")
-        print(f"cluster1 and cluster2: {len(cc_both)}")
+        print(f"cluster1: {len(df1)}")
+        print(f"cluster2: {len(df2)}")
+        print(f"cluster1 and cluster2: {len(df12)}")
+        
+        return df1,df2,df12
+    
+    def plotHistOnly(self, clst1_name, clst2_name, cc_threshold, nbins=20):
+        df1,df2,df12 = self.prepareDataframes(clst1_name, clst2_name, cc_threshold)
 
         # 上記３種類のDataframeでヒストグラムを作成
         # ヒストグラムはそれぞれのdataframeごとに並べて表示する（水平方向に３つ）
@@ -236,14 +275,14 @@ class FittingVarious():
         #for ax in axs.flatten():
             #ax.set_xlim(0.8, 1.0)
             
-        for idx, cc_df in enumerate([cc_df1, cc_df2, cc_both]):
+        for idx, cc_df in enumerate([df1, df2, df12]):
             # ヒストグラムを取得する
             hist, bin_centers, bin_edges = self.getHist(cc_df, cc_threshold, nbins)
             #axs[1,1].bar(bin_edges[:-1], hist, width=(bin_edges[1]-bin_edges[0]), align='edge', alpha=0.5)
 
             # cc_dfのhistgramを表示(帯) histを利用する
             # axsのインデックスは(行、列)
-            axs[0,idx].hist(cc_df, bins=nbins, alpha=0.5)
+            axs[0,idx].hist(cc_df['cc'], bins=nbins, alpha=0.5)
             axs[0,idx].set_title("histgram")
             axs[0,idx].set_xlabel("CC")
             axs[0,idx].set_ylabel("count")
@@ -251,7 +290,7 @@ class FittingVarious():
             axs[0,idx].set_xlabel("CC")
             axs[0,idx].set_ylabel("count")
             # ３つ重ねたCC分布
-            axs[1,0].hist(cc_df, bins=nbins, alpha=0.5)
+            axs[1,0].hist(cc_df['cc'], bins=nbins, alpha=0.5)
             axs[1,0].set_title("histgram")
             axs[1,0].set_xlabel("CC")
             axs[1,0].set_ylabel("count")
