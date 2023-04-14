@@ -48,6 +48,19 @@ class SimHCA():
         self.sample_list = np.array(self.sample_list)
         self.isPrepSample=True
 
+    def getCCvalueLogGauss(self):
+        import scipy.stats import lognorm
+        sigma=self.sample_dict['alpha']
+        loc=self.sample_dict['loc']
+        scale=self.sample_dict['scale']
+        # randccが 0~1に入るまで繰り返す
+        while True:
+            randcc = 1 - lognorm.rvs(sigma, loc, scale)
+            if randcc >= 0.0 and randcc <= 1.0:
+                break
+
+        return randcc
+
     # Simulationに利用するCCの配列を作成する
     # self.sample_listに登録されているデータセット（ラベル）の間で総当りでCCを計算する
     # A, Bのリストについては addSampleNameで作成したself.sample_listに含まれる総当りの組み合わせで計算する
@@ -81,12 +94,15 @@ class SimHCA():
         for idx1,s1 in enumerate(self.sample_list):
             for s2 in self.sample_list[idx1+1:]:
                 if s1=="A" and s2=="A":
-                    cctmp = SkewedGaussianCC.SkewedGaussianCC(alphaAA, locAA, scaleAA).rvs()
+                    cctmp = self.getCCvalueLogGauss()
+                    #cctmp = SkewedGaussianCC.SkewedGaussianCC(alphaAA, locAA, scaleAA).rvs()
                 elif s1=="B" and s2=="B":
-                    cctmp = SkewedGaussianCC.SkewedGaussianCC(alphaBB, locBB, scaleBB).rvs()
+                    cctmp = self.getCCvalueLogGauss()
+                    #cctmp = SkewedGaussianCC.SkewedGaussianCC(alphaBB, locBB, scaleBB).rvs()
                     self.ccBB.append(cctmp[0])
                 else:
-                    cctmp = SkewedGaussianCC.SkewedGaussianCC(alphaAB, locAB, scaleAB).rvs()
+                    #cctmp = SkewedGaussianCC.SkewedGaussianCC(alphaAB, locAB, scaleAB).rvs()
+                    cctmp = self.getCCvalueLogGauss()
                     self.ccAB.append(cctmp[0])
 
                 if cctmp[0]>1.0:
