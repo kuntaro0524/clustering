@@ -28,9 +28,9 @@ sigma_ab=0.7316
 loc_ab=0.01419
 scale_ab=0.024125
 
-sample_dict=[{"name":"A-A","sigma":sigma_aa,"loc":loc_aa,"scale":scale_aa},
-             {"name":"A-B","sigma":sigma_ab,"loc":loc_ab,"scale":scale_ab},
-             {"name":"B-B","sigma":sigma_bb,"loc":loc_bb,"scale":scale_bb}]
+sample_dict=[{"name":"apo-apo","sigma":sigma_aa,"loc":loc_aa,"scale":scale_aa},
+             {"name":"apo-benz","sigma":sigma_ab,"loc":loc_ab,"scale":scale_ab},
+             {"name":"benz-benz","sigma":sigma_bb,"loc":loc_bb,"scale":scale_bb}]
 
 # Figure name
 figname="sigma_%.1f_%.3f_%.3f_N%05d" % (
@@ -72,9 +72,9 @@ def calcCCvalue(stat_dict):
 
 sample_list=[]
 for i in np.arange(0,n_each):
-    sample_list.append("A")
+    sample_list.append("apo")
 for i in np.arange(0,n_each):
-    sample_list.append("B")
+    sample_list.append("benz")
 
 dis_list = []
 name_list=[]
@@ -87,19 +87,19 @@ ofile=open("cc.dat","w")
 
 for idx1,s1 in enumerate(sample_list):
     for s2 in sample_list[idx1+1:]:
-        if s1=="A" and s2=="A":
-            stat_dict=get_stat_info("A-A")
+        if s1=="apo" and s2=="apo":
+            stat_dict=get_stat_info("apo-apo")
             name_list.append("A-A")
             cctmp = calcCCvalue(stat_dict)
             apo_apo.append(cctmp)
-        elif s1=="B" and s2=="B":
-            stat_dict=get_stat_info("B-B")
-            name_list.append("B-B")
+        elif s1=="benz" and s2=="benz":
+            stat_dict=get_stat_info("benz-benz")
+            name_list.append("benz-benz")
             cctmp = calcCCvalue(stat_dict)
             ben_ben.append(cctmp)
         else:
-            stat_dict=get_stat_info("A-B")
-            name_list.append("A-B")
+            stat_dict=get_stat_info("apo-benz")
+            name_list.append("apo-benz")
             cctmp = calcCCvalue(stat_dict)
             apo_ben.append(cctmp)
 
@@ -114,23 +114,38 @@ for idx1,s1 in enumerate(sample_list):
 ofile.close()
 
 # Histgram of CC
-fig = plt.figure(figsize=(25,10))
-fig.subplots_adjust(left=0.05, right=0.95, bottom=0.05, top=0.95) #この1行を入れる
+fig = plt.figure(figsize=(10,9))
+fig.subplots_adjust(left=0.15, right=0.95, bottom=0.15, top=0.95) #この1行を入れる
+# 上下左右の余白を広めにとる
 spec = gridspec.GridSpec(ncols=2, nrows=1, width_ratios=[1, 5])
-ax1=fig.add_subplot(spec[0])
-ax2=fig.add_subplot(spec[1])
+#ax1=fig.add_subplot(spec[0])
+#ax2=fig.add_subplot(spec[1])
 
 # CC stats
 aaa=np.array(apo_apo)
 aba=np.array(apo_ben)
 bba=np.array(ben_ben)
-
-ax1.set_xlim(0.70,1.0)
+#ax1.set_xlim(0.90,1.0)
 #ax1.hist([apo_apo,apo_ben,ben_ben],bins=20,label=["apo-apo","apo-ben", "ben-ben"],sigma=0.5)
-ax1.hist(aaa,bins=20,alpha=0.5,label="AA")
-ax1.hist(aba,bins=20,alpha=0.5,label="AB")
-ax1.hist(bba,bins=20,alpha=0.5,label="BB")
-ax1.legend(loc="upper left")
+#ax1.hist(aaa,bins=20,alpha=0.5,label="apo-apo")
+#ax1.hist(aba,bins=20,alpha=0.5,label="apo-benz")
+#ax1.hist(bba,bins=20,alpha=0.5,label="benz-benz")
+
+# Fitted model function
+x = np.arange(0.0, 1.0, 0.001)
+from scipy.stats import lognorm
+def log_norm(x, sigma, loc, scale):
+    return lognorm.pdf(1-x, sigma, loc, scale)
+# AA model
+yaa = log_norm(x, sigma_aa, loc_aa, scale_aa)
+# BB model
+ybb = log_norm(x, sigma_bb, loc_bb, scale_bb)
+# AB model
+yab = log_norm(x, sigma_ab, loc_ab, scale_ab)
+#ax1.plot(x, yaa, label="AA")
+#ax1.plot(x, ybb, label="BB")
+#ax1.plot(x, yab, label="AB")
+#ax1.legend(loc="upper left")
 
 outfile=open("results.dat","w")
 outfile.write("AA(sigma,loc,scale)=%12.5f %12.5f %12.5f\n"% (sigma_aa, loc_aa, scale_aa))
@@ -145,13 +160,12 @@ outfile.close()
 #plt.savefig("cc_dist.png")
 
 Z = hierarchy.linkage(dis_list, 'ward')
-title_result="\nAA(mean:%5.3f std:%5.3f median:%5.3f) AB(mean:%5.3f std:%5.3f median:%5.3f) BB(mean:%5.3f std:%5.3f median:%5.3f)" % \
-    (aaa.mean(), aaa.std(), np.median(aaa), \
-    aba.mean(), aba.std(), np.median(aba), \
-    bba.mean(), bba.std(), np.median(bba))
+#title_result="\nAA(mean:%5.3f std:%5.3f median:%5.3f) AB(mean:%5.3f std:%5.3f median:%5.3f) BB(mean:%5.3f std:%5.3f median:%5.3f)" % \
+    #(aaa.mean(), aaa.std(), np.median(aaa), \
+    #aba.mean(), aba.std(), np.median(aba), \
+    #bba.mean(), bba.std(), np.median(bba))
 
-print(title_result)
-plt.title(title_s+title_result)
+#plt.title(title_s+title_result)
 
 dn = hierarchy.dendrogram(Z,labels=sample_list, leaf_font_size=10)
 
@@ -159,7 +173,14 @@ dn = hierarchy.dendrogram(Z,labels=sample_list, leaf_font_size=10)
 last_merge = Z[-2]  
 threshold = last_merge[2]  
 print("Threshold for two main clusters:", threshold)
-plt.annotate(f"Threshold: {threshold:.4f}", xy=(0.6, 0.65), xycoords='axes fraction')
-
+# 横軸の名前は "individual datasets"とする
+# xlabelの文字を20ptsにする
+plt.xlabel("individual datasets", fontsize=30)
+#　縦軸の名前を "Ward distance"とする
+plt.ylabel("Ward distance", fontsize=30)
+# yticsのフォントサイズを20ptsにする
+plt.yticks(fontsize=20)
+plt.xticks(fontsize=9)
+plt.annotate(f"Threshold: {threshold:.4f}", xy=(0.4, 0.62), xycoords='axes fraction', fontsize=20)
 plt.savefig("%s.jpg"%figname)
 plt.show()
