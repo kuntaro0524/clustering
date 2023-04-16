@@ -114,7 +114,7 @@ for idx1,s1 in enumerate(sample_list):
 ofile.close()
 
 # Histgram of CC
-fig = plt.figure(figsize=(10,9))
+fig = plt.figure(figsize=(15,9))
 fig.subplots_adjust(left=0.15, right=0.95, bottom=0.15, top=0.95) #この1行を入れる
 # 上下左右の余白を広めにとる
 spec = gridspec.GridSpec(ncols=2, nrows=1, width_ratios=[1, 5])
@@ -181,6 +181,6 @@ plt.ylabel("Ward distance", fontsize=30)
 # yticsのフォントサイズを20ptsにする
 plt.yticks(fontsize=20)
 plt.xticks(fontsize=9)
-plt.annotate(f"Threshold: {threshold:.4f}", xy=(0.4, 0.62), xycoords='axes fraction', fontsize=20)
-plt.savefig("%s.jpg"%figname)
+plt.annotate(f"threshold={threshold:.3f}", xy=(0.4, 0.55), xycoords='axes fraction', fontsize=20)
+plt.savefig("%s.png"%figname)
 plt.show()
