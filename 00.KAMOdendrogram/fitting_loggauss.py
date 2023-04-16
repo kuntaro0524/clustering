@@ -158,12 +158,16 @@ class FittingVarious():
         # モデル関数ごとに縦に４行並べる
         # subplotの配置を設定
         model_funcs = self.getModelFunctions()
-        fig, axs = plt.subplots(len(model_funcs), 3, figsize=(20, 20))
+        fig, axs = plt.subplots(len(model_funcs), 3, figsize=(15, 5))
         fig2, axs2 = plt.subplots(len(model_funcs), 1, figsize=(20, 20))
         # すべてX軸は 0.8~1.0の表示する
         # for文ですべてのaxsに対して設定する
         for ax in axs.flatten():
             ax.set_xlim(0.8, 1.0)
+
+        # plotのタイトルに設定するために各プロットに名称を与える
+        #plot_names = [clst1_name, clst2_name, "{cls1}_{cls2}".format(cls1=clst1_name, cls2=clst2_name)]
+        plot_names = ["apo-apo", "benz-benz", "apo-benz"]
         
         for idx,cc_df in enumerate([cc_df1, cc_df2, cc_both]):
             # ヒストグラムを取得する
@@ -173,23 +177,24 @@ class FittingVarious():
             # histgramを表示(帯)
             # axsのインデックスは(行、列)
 
+            # グラフのタイトルを設定
+            graph_title = plot_names[idx]
+
             # フィッティングしたモデル関数を表示
             x = np.linspace(0, 1, 1000)
             for i, func in enumerate(model_funcs):
                 print("processing: ", i,idx)
                 axs[idx].hist(cc_df['cc'], bins=50,alpha=0.5,density=True)
-                axs[idx].set_title("histgram")
-                axs[idx].set_xlabel("CC")
-                axs[idx].plot(x, func(x, *popt_list[i]), label=f"{func.__name__}")
-                axs[idx].set_title(self.func_name[i])
+                axs[idx].plot(x, func(x, *popt_list[i]), label=f"fitted model")
+                axs[idx].set_title(graph_title)
                 axs[idx].set_xlabel("CC")
                 axs[idx].set_ylabel("count")
                 axs[idx].legend()
                 # グラフ中にフィッティングの結果のパラメータを表示
-                axs[idx].text(0.9, 0.9, f"AIC: {aic_list[i]:.2f}", transform=axs[idx].transAxes)
+                #axs[idx].text(0.9, 0.9, f"AIC: {aic_list[i]:.2f}", transform=axs[idx].transAxes)
                 # poptの値を表示
-                for j, popt in enumerate(popt_list[i]):
-                    axs[idx].text(0.9, 0.9 - (j+1)*0.1, f"popt{j+1}: {popt:.5f}", transform=axs[idx].transAxes)
+                #for j, popt in enumerate(popt_list[i]):
+                    #axs[idx].text(0.9, 0.9 - (j+1)*0.1, f"popt{j+1}: {popt:.5f}", transform=axs[idx].transAxes)
                 #axs2.fill_between(bin_centers, hist, alpha=0.5)
                 axs2.hist(cc_df['cc'], bins=20,alpha=0.5,density=True)
 
