@@ -12,6 +12,7 @@ class FittingVarious():
         print("OK!")
         #self.func_name = ["skewed gaussian", "beta pdf", "log_norm", "betaprime_pdf","sk noise", "log noise"]
         self.func_name = ["log_norm"]
+        # self.func_name = ["skewed gaussian"]
 
     # CLUSTERS.txtを読み取り、クラスター番号を指定して、そのクラスターに含まれるIDのリストを返す
     def get_id_list_from_clusters(self,cluster_number, file_path="CLUSTERS.txt"):
@@ -166,8 +167,8 @@ class FittingVarious():
             ax.set_xlim(0.8, 1.0)
 
         # plotのタイトルに設定するために各プロットに名称を与える
-        #plot_names = [clst1_name, clst2_name, "{cls1}_{cls2}".format(cls1=clst1_name, cls2=clst2_name)]
-        plot_names = ["apo-apo", "benz-benz", "apo-benz"]
+        plot_names = [clst1_name, clst2_name, "{cls1}_{cls2}".format(cls1=clst1_name, cls2=clst2_name)]
+        #plot_names = ["apo-apo", "benz-benz", "apo-benz"]
         
         for idx,cc_df in enumerate([cc_df1, cc_df2, cc_both]):
             # ヒストグラムを取得する
@@ -184,7 +185,7 @@ class FittingVarious():
             x = np.linspace(0, 1, 1000)
             for i, func in enumerate(model_funcs):
                 print("processing: ", i,idx)
-                axs[idx].hist(cc_df['cc'], bins=50,alpha=0.5,density=True)
+                axs[idx].hist(cc_df['cc'], bins=50,alpha=0.5,density=False)
                 axs[idx].plot(x, func(x, *popt_list[i]), label=f"fitted model")
                 axs[idx].set_title(graph_title, fontsize=18)
                 axs[idx].set_xlabel("CC", fontsize=18)
@@ -193,8 +194,8 @@ class FittingVarious():
                 # グラフ中にフィッティングの結果のパラメータを表示
                 #axs[idx].text(0.9, 0.9, f"AIC: {aic_list[i]:.2f}", transform=axs[idx].transAxes)
                 # poptの値を表示
-                #for j, popt in enumerate(popt_list[i]):
-                    #axs[idx].text(0.9, 0.9 - (j+1)*0.1, f"popt{j+1}: {popt:.5f}", transform=axs[idx].transAxes)
+                for j, popt in enumerate(popt_list[i]):
+                    axs[idx].text(0.9, 0.9 - (j+1)*0.1, f"popt{j+1}: {popt:.5f}", transform=axs[idx].transAxes)
                 #axs2.fill_between(bin_centers, hist, alpha=0.5)
                 #axs2.hist(cc_df['cc'], bins=20,alpha=0.5,density=True)
 
@@ -218,4 +219,4 @@ if __name__ == "__main__":
     cluster_numbers = sys.argv[1:]
     cc_values_list = []
 
-    ccModel.run(cluster_numbers[0], cluster_numbers[1], 0.9165, 10)
+    ccModel.run(cluster_numbers[0], cluster_numbers[1], 0.800,15)

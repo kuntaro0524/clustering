@@ -84,6 +84,8 @@ class AnaCC():
 
         cc_values = []
         cctype_list=[]
+        i_list=[]
+        j_list=[]
 
         # 同じクラスタIDに含まれるインデックスどうし、または異なるクラスタIDに含まれるインデックスどうしのCC値を取得する
         # iとjの両方がid_list1に含まれている場合には対応するCC値を取得→type: "AA"をキーとしてccをdictに格納→配列として保存する
@@ -99,10 +101,14 @@ class AnaCC():
                 if i in id_list1 and j in id_list1:
                     cctype_list.append("AA")
                     cc_values.append(float(cols[2]))
+                    i_list.append(i)
+                    j_list.append(j)
                 # iとjの両方がid_list2に含まれている場合には "BB" をキーとしてccをdictに格納→配列として保存する
                 elif i in id_list2 and j in id_list2:
                     cctype_list.append("BB")
                     cc_values.append(float(cols[2]))
+                    i_list.append(i)
+                    j_list.append(j)
                 # i, j がどちらにも含まれていない場合には、何もしない
                 elif (i not in id_list1 and i not in id_list2) or (j not in id_list1 and j not in id_list2):
                     continue
@@ -110,13 +116,64 @@ class AnaCC():
                 else:
                     cctype_list.append("AB")
                     cc_values.append(float(cols[2])) 
+                    i_list.append(i)
+                    j_list.append(j)
 
         # cc_values が格納されたDataFrameを返す
         ret = pd.DataFrame(cc_values, columns=["cc"])
         # retにcctype_listを追加する
         ret["cctype"] = cctype_list
+        # retにi_listを追加する
+        ret["i"] = i_list
+        # retにj_listを追加する
+        ret["j"] = j_list
     
         return ret
+
+    def crossCheck(self, cluster1_name, cluster2_name, cc_thresh=0.9165, clusters_file="CLUSTERS.txt", cctable_file="cctable.dat", listname="filenames.lst"):
+        # cluster1_nameとcluster2_nameのクラスタIDを取得する
+        id_list1 = self.get_id_list_from_clusters(cluster1_name, clusters_file)
+        # cluster1_nameとcluster2_nameのクラスタIDを取得する
+        id_list2 = self.get_id_list_from_clusters(cluster2_name, clusters_file)
+
+        # self.get_cc_various_values_from_cctable()を用いてdataframeを取得する
+        df_all = self.get_cc_various_values_from_cctable(cluster1_name, cluster2_name, clusters_file, cctable_file=cctable_file)
+
+        # CC値がcc_thresh以上のもののみを取り出す
+        df_all = df_all[df_all["cc"] >= cc_thresh]
+
+        # "AB"のi, jの値を取り出す
+        df_AB = df_all[df_all["cctype"] == "AB"]
+        # error flag
+        error_flag = False
+        # df_ABに含まれる行を１行ずつ処理する
+        for index, row in df_AB.iterrows():
+            i, j = row["i"], row["j"]
+            # i がid_list1に含まれている場合には cluster1_name とする
+            # i がid_list2に含まれている場合には cluster2_name とする
+            # j がid_list1に含まれている場合には cluster1_name とする
+            # j がid_list2に含まれている場合には cluster2_name とする
+            if i in id_list1:
+                cluster_i = cluster1_name
+            elif i in id_list2:
+                cluster_i = cluster2_name
+            if j in id_list1:
+                cluster_j = cluster1_name
+            elif j in id_list2:
+                cluster_j = cluster2_name
+            
+            # 正しくラベルがついているか確認する
+            # 期待しているのは cluster_i と cluster_j が異なる場合のみ
+            if cluster_i != cluster_j:
+                self.logger.info(f"i: {i}, j: {j}, cluster_i: {cluster_i}, cluster_j: {cluster_j}")
+                print("i, j, cluster_i, cluster_j", i, j, cluster_i, cluster_j)
+            else:
+                self.logger.info(f"ERROR i: {i}, j: {j}, cluster_i: {cluster_i}, cluster_j: {cluster_j}")
+                print("i, j, cluster_i, cluster_j", i, j, cluster_i, cluster_j)
+                print("Error: cluster_i == cluster_j")
+                error_flag = True
+
+        return error_flag
     
     # CCの統計値を計算して表示する
     def calcAndShowCC(self, cluster_number1, cluster_number2, threshold=0.8, clusters_file="CLUSTERS.txt", cctable_file="cctable.dat", listname="filenames.lst"):
@@ -139,7 +196,16 @@ class AnaCC():
         df["BB"] = [df_BB["cc"].mean(), df_BB["cc"].std(), df_BB["cc"].median(), len(df_BB)]
         # AB
         df["AB"] = [df_AB["cc"].mean(), df_AB["cc"].std(), df_AB["cc"].median(), len(df_AB)]
-        print(df)
+
+        # データフレームをcsvファイルに出力する
+        # AA, BB, AB の順に結果を表示する
+        # 1行目はAA それぞれのCC値の平均値、標準偏差、中央値、データ数を表示する
+        # 2行目はBB それぞれのCC値の平均値、標準偏差、中央値、データ数を表示する
+        # 3行目はAB それぞれのCC値の平均値、標準偏差、中央値、データ数を表示する
+        # 桁数は小数点以下4桁まで
+        df.to_csv("CC.csv", float_format="%.4f")
+        
+        
     
     # filesname.lstには、ファイル名が1行1つずつ記載されている
     # そのファイルとcctaable.datからCCの組み合わせを取得する
@@ -195,11 +261,37 @@ class AnaCC():
         df_count = pd.DataFrame([df_apo_apo["cc"].count(), df_apo_ben["cc"].count(), df_ben_ben["cc"].count()], columns=["count"], index=["apo_apo", "apo_ben", "ben_ben"])
         df = pd.concat([df_mean, df_std, df_median, df_count], axis=1)
         print(df)
+
+        # データフレームをcsvファイルに出力する
+        # AA, BB, AB の順に結果を表示する
+        # 1行目はAA それぞれのCC値の平均値、標準偏差、中央値、データ数を表示する
+        # 2行目はBB それぞれのCC値の平均値、標準偏差、中央値、データ数を表示する
+        # 3行目はAB それぞれのCC値の平均値、標準偏差、中央値、データ数を表示する
+        # 桁数は小数点以下4桁まで
+        df.to_csv("CC.csv", float_format="%.4f")
         
 
 # mainが定義されていなかったら
 if __name__ == "__main__":
+    import sys
     ana = AnaCC()
     #print(ana.read_cctable("0072"))
-    ana.calcAndShowCC("0071", "0072", threshold=0.0)
-    #ana.get_cc_from_filenamelst(threshold=0.0)
+    print("From cluster number")
+    cluster1=sys.argv[1]
+    cluster2=sys.argv[2]
+    # しきい値を引数から得る
+    # しきい値が指定されていなければ0.8を使う
+    if len(sys.argv) > 3:
+        threshold = float(sys.argv[3])
+    else:
+        threshold = 0.9165
+
+    # check if this function works
+    error_flag = ana.crossCheck(cluster1, cluster2, cc_thresh=0.9165, clusters_file="CLUSTERS.txt", cctable_file="cctable.dat", listname="filenames.lst")
+    # if error_flag is True, then there is an error
+    if error_flag:
+        print("Error: cross check failed")
+        sys.exit(1)
+    else:
+        #ana.calcAndShowCC(cluster1, cluster2, threshold=threshold)
+        ana.get_cc_from_filenamelst(threshold=threshold)

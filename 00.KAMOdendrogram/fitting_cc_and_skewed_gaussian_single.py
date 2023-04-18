@@ -46,21 +46,19 @@ if ana_type=="AA":
     sigma_data = np.std(cc_apo_apo)
     # CC data array
     ccdata = cc_apo_apo
-    n_bins = int(len(ccdata) / 8)
 elif ana_type=="AB":
     # CCの標準偏差を計算する
     sigma_data = np.std(cc_apo_benz)
     # CC data array
     ccdata = cc_apo_benz
-    n_bins = int(len(ccdata) / 8)
 elif ana_type=="BB":
     # CCの標準偏差を計算する
     sigma_data = np.std(cc_benz_benz)
     # CC data array
     ccdata = cc_benz_benz
-    n_bins = int(len(ccdata) / 8)
 
 print(f"LENGTH={len(ccdata):d}")
+n_bins = int(len(ccdata) / 8)
 # 初期値？
 hist, bin_edges = np.histogram(ccdata, bins=n_bins)
 bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2

@@ -12,27 +12,20 @@ from scipy.stats import lognorm
 n_total=int(sys.argv[1])
 n_each = int(n_total/2.0)
 
-# [6.43075406e-01 1.16633855e-04 1.51898783e-02]
-# [0.83766395 0.00151831 0.01265517]
-# [ 5.33851726e-01 -2.87150706e-04  3.08459873e-02]
 
-# 230418
-# [0.93599885 0.00306387 0.01758039]
-# [0.45700166 0.00122989 0.0244446 ]
-# [0.60928141 0.01302764 0.02259892]
+# nbin=20, cc>=0.8
+# [ 0.25706748 -0.00582829  0.01807159]
+# [0.97068976 0.00463379 0.00579725]
+# [ 0.24025039 -0.00899155  0.03458903]
 
+sigma_aa,loc_aa,scale_aa= 0.25706748,-0.00582829, 0.01807159
+sigma_bb,loc_bb,scale_bb= 0.97068976,0.00463379,0.00579725
+sigma_ab,loc_ab,scale_ab= 0.24025039,-0.00899155, 0.03458903
 
-sigma_aa = 0.9359
-loc_aa = 0.00306
-scale_aa = 0.0175
+sigma_aa,loc_aa,scale_aa= 0.48318638,-0.00173054, 0.01571608
+sigma_bb,loc_bb,scale_bb=6.54281090e-01,4.03679076e-04,1.19122440e-02
+sigma_ab,loc_ab,scale_ab= 0.41541101,-0.00301814 ,0.03127803
 
-sigma_bb= 0.457
-loc_bb= 0.00122
-scale_bb= 0.024444
-
-sigma_ab=0.60928
-loc_ab=0.013027
-scale_ab=0.02259
 
 sample_dict=[{"name":"A-A","sigma":sigma_aa,"loc":loc_aa,"scale":scale_aa},
              {"name":"A-B","sigma":sigma_ab,"loc":loc_ab,"scale":scale_ab},

@@ -47,7 +47,7 @@ def calcCCvalue(stat_dict):
 for nds in [50,100,200,500,1000]:
     n_each = int(nds/2.0)
 
-    for nth_time in range(0,10,1):
+    for nth_time in range(0,100,1):
         # Dendrogram title
         title="n_total=%d, nds=%d, time=%d"%(nds,nds,nth_time)
         
@@ -151,6 +151,6 @@ for nds in [50,100,200,500,1000]:
         outfile.write("%d,%f\n"%(nds,threshold))
 
         # nds, nth_timeをファイル名にする
-        figname="fig_%d_%d"%(nds,nth_time)
-        plt.savefig("%s.jpg"%figname)
+        #figname="fig_%d_%d"%(nds,nth_time)
+        #plt.savefig("%s.jpg"%figname)
         #plt.show()

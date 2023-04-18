@@ -247,8 +247,8 @@ class FittingVarious():
 
         # フィッティングをしてみる
         model_functions = self.getModelFunctions()
-        each_model=model_functions[2]
-        initial_param = self.initial_params[2]
+        each_model=model_functions[0]
+        initial_param = self.initial_params[0]
         n_success =0 
         results1 = self.fit2function(df1, each_model, initial_param, nbins=binparam, cc_threshold=ccthresh)
         results2 = self.fit2function(df2, each_model, initial_param, nbins=binparam, cc_threshold=ccthresh)
@@ -276,15 +276,15 @@ class FittingVarious():
         plt.figure(figsize=(15,5))
         plt.subplot(1,3,1)
         n_bins = int(len(df1['cc']) / binparam)
-        plt.hist(df1['cc'], bins=n_bins)
+        plt.hist(df1['cc'], bins=n_bins, density=False)
         plt.title(f"{clst1name}")
         plt.subplot(1,3,2)
         n_bins = int(len(df2['cc']) / binparam)
-        plt.hist(df2['cc'], bins=n_bins)
+        plt.hist(df2['cc'], bins=n_bins, density=False)
         plt.title(f"{clst2name}")
         plt.subplot(1,3,3)
         n_bins = int(len(df12['cc']) / binparam)
-        plt.hist(df12['cc'], bins=n_bins)
+        plt.hist(df12['cc'], bins=n_bins, density=False)
         plt.title(f"{clst1name} {clst2name}")
         # each_modelの名前をファイルにつける
         plt.savefig(f"{clst1name}_{clst2name}_{ccthresh}_{binparam}_{model_func.__name__}_hist.png")
@@ -298,7 +298,7 @@ class FittingVarious():
         x = np.linspace(0, 1, 1000)
         # モデル関数のグラフを描く
         # Xの範囲は 0.9-1.0
-        plt.figure(figsize=(10,10))
+        plt.figure(figsize=(25,10))
         plt.xlim(0.9,1.0)
         plt.plot(x, model_func(x, *popt1))
         plt.title(f"{clst1name}")
@@ -314,15 +314,15 @@ class FittingVarious():
         # ヒストグラムは水平方向に３つ並べる
         n_bins = int(len(df1['cc']) / binparam)
         plt.subplot(1,3,1)
-        plt.hist(df1['cc'], bins=n_bins,alpha=0.3,density=False)
+        plt.hist(df1['cc'], bins=n_bins,alpha=0.3,density=True)
         plt.title(f"{clst1name}")
         n_bins = int(len(df2['cc']) / binparam)
         plt.subplot(1,3,2)
-        plt.hist(df2['cc'], bins=n_bins,alpha=0.3,density=False)
+        plt.hist(df2['cc'], bins=n_bins,alpha=0.3,density=True)
         plt.title(f"{clst2name}")
         plt.subplot(1,3,3)
         n_bins = int(len(df12['cc']) / binparam)
-        plt.hist(df12['cc'], bins=n_bins,alpha=0.3,density=False)
+        plt.hist(df12['cc'], bins=n_bins,alpha=0.3,density=True)
         plt.subplot(1,3,1)
         plt.xlim(0.8,1.0)
         plt.plot(x, model_func(x, *popt1))
