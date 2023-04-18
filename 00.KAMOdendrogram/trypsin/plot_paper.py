@@ -27,6 +27,9 @@ ax.set_ylabel("Threshold")
 #　凡例を表示
 ax.legend()
 
+# y=0.6 y=0.7 に囲まれた領域を薄いピンク色にする
+ax.axhspan(0.6, 0.7, facecolor="pink", alpha=0.5)
+
 plt.savefig("paper.png")
 plt.show()
 
@@ -37,6 +40,7 @@ newdf["Trypsin"] = df1_mean["Threshold"]
 newdf["Trn"] = df2_mean["Threshold"]
 newdf["Trypsin_std"] = df1_std["Threshold"]
 newdf["Trn_std"] = df2_std["Threshold"] 
+
 
 # csvとして出力
 newdf.to_csv("paper.csv")

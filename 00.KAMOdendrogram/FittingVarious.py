@@ -70,11 +70,14 @@ class FittingVarious():
                 elif i in id_list2 and j in id_list2:
                     cctype_list.append("BB")
                     cc_values.append(float(cols[2]))
+                # i, j がどちらにも含まれていない場合には、何もしない
+                elif (i not in id_list1 and i not in id_list2) or (j not in id_list1 and j not in id_list2):
+                    continue
                 # それ以外の場合はABとなる
                 else:
                     cctype_list.append("AB")
                     cc_values.append(float(cols[2]))
-
+        
         # cc_values が格納されたDataFrameを返す
         ret = pd.DataFrame(cc_values, columns=["cc"])
         # retにcctype_listを追加する
@@ -244,8 +247,8 @@ class FittingVarious():
 
         # フィッティングをしてみる
         model_functions = self.getModelFunctions()
-        each_model=model_functions[2]
-        initial_param = self.initial_params[2]
+        each_model=model_functions[0]
+        initial_param = self.initial_params[0]
         n_success =0 
         results1 = self.fit2function(df1, each_model, initial_param, nbins=binparam, cc_threshold=ccthresh)
         results2 = self.fit2function(df2, each_model, initial_param, nbins=binparam, cc_threshold=ccthresh)
@@ -263,7 +266,6 @@ class FittingVarious():
         # パラメータを表示する
         for popt in df['popt']:
             print(popt)
-        #print(df['popt'])
 
         self.makeResultantPlots(each_model, df1, df2, df12, clst1name, clst2name, results1, results2, results3, ccthresh, binparam)
 
@@ -274,15 +276,15 @@ class FittingVarious():
         plt.figure(figsize=(15,5))
         plt.subplot(1,3,1)
         n_bins = int(len(df1['cc']) / binparam)
-        plt.hist(df1['cc'], bins=n_bins)
+        plt.hist(df1['cc'], bins=n_bins, density=False)
         plt.title(f"{clst1name}")
         plt.subplot(1,3,2)
         n_bins = int(len(df2['cc']) / binparam)
-        plt.hist(df2['cc'], bins=n_bins)
+        plt.hist(df2['cc'], bins=n_bins, density=False)
         plt.title(f"{clst2name}")
         plt.subplot(1,3,3)
         n_bins = int(len(df12['cc']) / binparam)
-        plt.hist(df12['cc'], bins=n_bins)
+        plt.hist(df12['cc'], bins=n_bins, density=False)
         plt.title(f"{clst1name} {clst2name}")
         # each_modelの名前をファイルにつける
         plt.savefig(f"{clst1name}_{clst2name}_{ccthresh}_{binparam}_{model_func.__name__}_hist.png")
@@ -296,7 +298,7 @@ class FittingVarious():
         x = np.linspace(0, 1, 1000)
         # モデル関数のグラフを描く
         # Xの範囲は 0.9-1.0
-        plt.figure(figsize=(10,10))
+        plt.figure(figsize=(25,10))
         plt.xlim(0.9,1.0)
         plt.plot(x, model_func(x, *popt1))
         plt.title(f"{clst1name}")
@@ -312,15 +314,15 @@ class FittingVarious():
         # ヒストグラムは水平方向に３つ並べる
         n_bins = int(len(df1['cc']) / binparam)
         plt.subplot(1,3,1)
-        plt.hist(df1['cc'], bins=n_bins,alpha=0.3)
+        plt.hist(df1['cc'], bins=n_bins,alpha=0.3,density=True)
         plt.title(f"{clst1name}")
         n_bins = int(len(df2['cc']) / binparam)
         plt.subplot(1,3,2)
-        plt.hist(df2['cc'], bins=n_bins,alpha=0.3)
+        plt.hist(df2['cc'], bins=n_bins,alpha=0.3,density=True)
         plt.title(f"{clst2name}")
         plt.subplot(1,3,3)
         n_bins = int(len(df12['cc']) / binparam)
-        plt.hist(df12['cc'], bins=n_bins,alpha=0.3)
+        plt.hist(df12['cc'], bins=n_bins,alpha=0.3,density=True)
         plt.subplot(1,3,1)
         plt.xlim(0.8,1.0)
         plt.plot(x, model_func(x, *popt1))
@@ -578,4 +580,6 @@ if __name__ == "__main__":
     elif options.process_type == "fit_various":
         ccModel.fitAll(options.cluster1, options.cluster2, float(options.cc_threshold), int(options.nbins))
     elif options.process_type == "test":
+        # thresholdの数値を表示する
+        print(f"cc_threshold={options.cc_threshold}")
         ccModel.testRun(options.cluster1, options.cluster2, float(options.cc_threshold), int(options.nbins))

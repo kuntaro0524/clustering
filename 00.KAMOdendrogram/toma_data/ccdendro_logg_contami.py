@@ -6,58 +6,34 @@ from matplotlib import gridspec
 from scipy.cluster import hierarchy
 from scipy.stats import skewnorm
 from scipy.cluster.hierarchy import fcluster
+from scipy.stats import lognorm
 
 #scale=float(sys.argv[1])
 n_total=int(sys.argv[1])
 n_each = int(n_total/2.0)
 
 
-# 10 
-# Cluster 0072: alpha=-5.6823, loc=0.9868, scale=0.0187
-# Cluster 0071: alpha=-20.7491, loc=0.9948, scale=0.0238
-# Cluster 0072 and 0071: alpha=-10.3442, loc=0.9797, scale=0.0246
+# nbin=20, cc>=0.8
+# [ 0.25706748 -0.00582829  0.01807159]
+# [0.97068976 0.00463379 0.00579725]
+# [ 0.24025039 -0.00899155  0.03458903]
 
-# alpha, loc, scale
-# AA
-alpha_aa = -5.6823
-loc_aa = 0.9868
-scale_aa = 0.0187
+sigma_aa,loc_aa,scale_aa= 0.25706748,-0.00582829, 0.01807159
+sigma_bb,loc_bb,scale_bb= 0.97068976,0.00463379,0.00579725
+sigma_ab,loc_ab,scale_ab= 0.24025039,-0.00899155, 0.03458903
 
-# BB
-alpha_bb = -20.7491
-loc_bb = 0.9948
-scale_bb = 0.0238
-
-# AB
-alpha_ab = -10.3442
-loc_ab = 0.9797
-scale_ab = 0.0246
-
-# alpha, loc, scale
-# AA
-alpha_aa = -15.2
-loc_aa = 0.9944
-scale_aa = 0.0195
-
-# BB
-alpha_bb = -8.4750
-loc_bb = 0.9883
-scale_bb = 0.0251
-
-# AB
-alpha_ab = -11.379
-loc_ab = 0.9799
-scale_ab = 0.02777
+sigma_aa,loc_aa,scale_aa= 0.48318638,-0.00173054, 0.01571608
+sigma_bb,loc_bb,scale_bb=6.54281090e-01,4.03679076e-04,1.19122440e-02
+sigma_ab,loc_ab,scale_ab= 0.41541101,-0.00301814 ,0.03127803
 
 
-
-sample_dict=[{"name":"A-A","alpha":alpha_aa,"loc":loc_aa,"scale":scale_aa},
-             {"name":"A-B","alpha":alpha_ab,"loc":loc_ab,"scale":scale_ab},
-             {"name":"B-B","alpha":alpha_bb,"loc":loc_bb,"scale":scale_bb}]
+sample_dict=[{"name":"A-A","sigma":sigma_aa,"loc":loc_aa,"scale":scale_aa},
+             {"name":"A-B","sigma":sigma_ab,"loc":loc_ab,"scale":scale_ab},
+             {"name":"B-B","sigma":sigma_bb,"loc":loc_bb,"scale":scale_bb}]
 
 # Figure name
-figname="alpha_%.1f_%.3f_%.3f_N%05d" % (
-    sample_dict[1]['alpha'],sample_dict[1]['loc'], sample_dict[1]['scale'], n_total)
+figname="sigma_%.1f_%.3f_%.3f_N%05d" % (
+    sample_dict[1]['sigma'],sample_dict[1]['loc'], sample_dict[1]['scale'], n_total)
     
 
 files=glob.glob("%s*"%figname)
@@ -67,25 +43,27 @@ if n_exist != 0:
     figname="%s_%02d"%(figname,index)
 
 # Dendrogram title
-title_s = "INPUT: (%s: alpha: %8.3f loc:%8.3f scale:%8.3f)(%s alpha:%8.3f loc:%8.3f scale:%8.3f)(%s: alpha:%8.3f loc:%8.3f scale:%8.3f)" \
-    % (sample_dict[0]['name'], sample_dict[0]['alpha'],sample_dict[0]['loc'], sample_dict[0]['scale'], \
-    sample_dict[1]['name'], sample_dict[1]['alpha'],sample_dict[1]['loc'], sample_dict[1]['scale'], \
-    sample_dict[2]['name'], sample_dict[2]['alpha'],sample_dict[2]['loc'], sample_dict[2]['scale'])
-
-print(title_s)
+title_s = "INPUT: (%s: sigma: %8.3f loc:%8.3f scale:%8.3f)(%s sigma:%8.3f loc:%8.3f scale:%8.3f)(%s: sigma:%8.3f loc:%8.3f scale:%8.3f)" \
+    % (sample_dict[0]['name'], sample_dict[0]['sigma'],sample_dict[0]['loc'], sample_dict[0]['scale'], \
+    sample_dict[1]['name'], sample_dict[1]['sigma'],sample_dict[1]['loc'], sample_dict[1]['scale'], \
+    sample_dict[2]['name'], sample_dict[2]['sigma'],sample_dict[2]['loc'], sample_dict[2]['scale'])
 
 def get_stat_info(cc_combination):
     for idx,s in enumerate(sample_dict):
         if s['name']==cc_combination:
             return s
 
-def make_skew_random_cc(stat_dict):
-    alpha=stat_dict['alpha']
+from scipy.stats import rv_continuous
+from scipy.special import erf
+import numpy as np
+
+def calcCCvalue(stat_dict):
+    sigma=stat_dict['sigma']
     loc=stat_dict['loc']
     scale=stat_dict['scale']
     # randccが 0~1に入るまで繰り返す
     while True:
-        randcc = skewnorm.rvs(alpha, loc=loc, scale=scale)
+        randcc = 1 - lognorm.rvs(sigma, loc, scale)
         if randcc >= 0.0 and randcc <= 1.0:
             break
 
@@ -96,6 +74,10 @@ for i in np.arange(0,n_each):
     sample_list.append("A")
 for i in np.arange(0,n_each):
     sample_list.append("B")
+for i in np.arange(0,10):
+    sample_list.append("C")
+
+sample_list.append("D")
 
 dis_list = []
 name_list=[]
@@ -111,19 +93,41 @@ for idx1,s1 in enumerate(sample_list):
         if s1=="A" and s2=="A":
             stat_dict=get_stat_info("A-A")
             name_list.append("A-A")
-            cctmp = make_skew_random_cc(stat_dict)
+            cctmp = calcCCvalue(stat_dict)
             apo_apo.append(cctmp)
         elif s1=="B" and s2=="B":
             stat_dict=get_stat_info("B-B")
             name_list.append("B-B")
-            cctmp = make_skew_random_cc(stat_dict)
+            cctmp = calcCCvalue(stat_dict)
             ben_ben.append(cctmp)
-        else:
+        elif s1=="A" and s2=="B":
             stat_dict=get_stat_info("A-B")
             name_list.append("A-B")
-            cctmp = make_skew_random_cc(stat_dict)
+            cctmp = calcCCvalue(stat_dict)
             apo_ben.append(cctmp)
-
+        elif s1=="C" or s2=="C":
+            # cctmpに0.6~0.8のランダムな数を入れる
+            cctmp = np.random.uniform(0.6,0.8)
+            name_list.append("C")
+            apo_ben.append(cctmp)
+        # s1 s2 のどちらかに"D"が含まれていて他方が"A"の場合
+        elif (s1=="D" and s2=="A") or (s1=="A" and s2=="D"):
+            cctmp = np.random.uniform(0.6,0.8)
+            name_list.append("D")
+            apo_ben.append(cctmp)
+        # s1 s2 のどちらかに"D"が含まれていて他方が"B"の場合
+        elif (s1=="D" and s2=="B") or (s1=="B" and s2=="D"):
+            cctmp = np.random.uniform(0.8,1.0)
+            name_list.append("D")
+            apo_ben.append(cctmp)
+        # どちらも"D"の場合
+        elif s1=="D" and s2=="D":
+            cctmp = np.random.uniform(0.9,1.0)
+            name_list.append("D")
+            apo_ben.append(cctmp)
+        else:
+            print("errror")
+            sys.exit()
         if cctmp>1.0:
             cctmp=1.0
 
@@ -147,16 +151,16 @@ aba=np.array(apo_ben)
 bba=np.array(ben_ben)
 
 ax1.set_xlim(0.70,1.0)
-#ax1.hist([apo_apo,apo_ben,ben_ben],bins=20,label=["apo-apo","apo-ben", "ben-ben"],alpha=0.5)
+#ax1.hist([apo_apo,apo_ben,ben_ben],bins=20,label=["apo-apo","apo-ben", "ben-ben"],sigma=0.5)
 ax1.hist(aaa,bins=20,alpha=0.5,label="AA")
 ax1.hist(aba,bins=20,alpha=0.5,label="AB")
 ax1.hist(bba,bins=20,alpha=0.5,label="BB")
 ax1.legend(loc="upper left")
 
 outfile=open("results.dat","w")
-outfile.write("AA(alpha,loc,scale)=%12.5f %12.5f %12.5f\n"% (alpha_aa, loc_aa, scale_aa))
-outfile.write("AB(alpha,loc,scale)=%12.5f %12.5f %12.5f\n"% (alpha_ab, loc_ab, scale_ab))
-outfile.write("BB(alpha,loc,scale)=%12.5f %12.5f %12.5f\n"% (alpha_bb, loc_bb, scale_bb))
+outfile.write("AA(sigma,loc,scale)=%12.5f %12.5f %12.5f\n"% (sigma_aa, loc_aa, scale_aa))
+outfile.write("AB(sigma,loc,scale)=%12.5f %12.5f %12.5f\n"% (sigma_ab, loc_ab, scale_ab))
+outfile.write("BB(sigma,loc,scale)=%12.5f %12.5f %12.5f\n"% (sigma_bb, loc_bb, scale_bb))
 
 outfile.write("AA(mean,std,median)=%12.5f %12.5f %12.5f\n"% (aaa.mean(), aaa.std(), np.median(aaa)))
 outfile.write("AB(mean,std,median)=%12.5f %12.5f %12.5f\n"% (aba.mean(), aba.std(), np.median(aba)))

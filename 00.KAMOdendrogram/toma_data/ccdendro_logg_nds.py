@@ -8,25 +8,18 @@ from scipy.stats import skewnorm
 from scipy.cluster.hierarchy import fcluster
 from scipy.stats import lognorm
 
-#scale=float(sys.argv[1])
-#n_total=int(sys.argv[1])
-#n_each = int(n_total/2.0)
+# 230418 revised version
+sigma_aa = 0.257
+loc_aa = -0.0058
+scale_aa = 0.2356
 
-# [0.57589715 0.0033695  0.02383734]
-# [0.93177759 0.00324547 0.01636987]
-# [0.7316575  0.01419515 0.02412596]
+sigma_bb= 
+loc_bb= 0.00122
+scale_bb= 0.024444
 
-sigma_aa = 0.6430
-loc_aa = 1.166e-4
-scale_aa = 1.5189E-2
-
-sigma_bb= 0.8377
-loc_bb= 0.001518
-scale_bb= 0.01265
-
-sigma_ab=5.3385e-1
-loc_ab=-2.8715e-4
-scale_ab=3.0845e-2
+sigma_ab=0.60928
+loc_ab=0.013027
+scale_ab=0.02259
 
 sample_dict=[{"name":"A-A","sigma":sigma_aa,"loc":loc_aa,"scale":scale_aa},
              {"name":"A-B","sigma":sigma_ab,"loc":loc_ab,"scale":scale_ab},
@@ -47,7 +40,7 @@ def calcCCvalue(stat_dict):
 for nds in [50,100,200,500,1000]:
     n_each = int(nds/2.0)
 
-    for nth_time in range(0,10,1):
+    for nth_time in range(0,100,1):
         # Dendrogram title
         title="n_total=%d, nds=%d, time=%d"%(nds,nds,nth_time)
         
@@ -151,6 +144,6 @@ for nds in [50,100,200,500,1000]:
         outfile.write("%d,%f\n"%(nds,threshold))
 
         # nds, nth_timeをファイル名にする
-        figname="fig_%d_%d"%(nds,nth_time)
-        plt.savefig("%s.jpg"%figname)
+        #figname="fig_%d_%d"%(nds,nth_time)
+        #plt.savefig("%s.jpg"%figname)
         #plt.show()
