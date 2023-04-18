@@ -76,17 +76,22 @@ class FittingVarious():
                 elif i in id_list2 and j in id_list2:
                     cctype_list.append("BB")
                     cc_values.append(float(cols[2]))
+                # i, j がどちらにも含まれていない場合には、何もしない
+                # ここが結果に致命的にきく
+                elif (i not in id_list1 and i not in id_list2) or (j not in id_list1 and j not in id_list2):
+                    continue
                 # それ以外の場合はABとなる
                 else:
                     cctype_list.append("AB")
                     cc_values.append(float(cols[2]))
-
+        
         # cc_values が格納されたDataFrameを返す
         ret = pd.DataFrame(cc_values, columns=["cc"])
         # retにcctype_listを追加する
         ret["cctype"] = cctype_list
     
         return ret
+
     
     # フィッティングに利用する関数の定義
     def getModelFunctions(self):

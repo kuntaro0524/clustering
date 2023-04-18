@@ -70,11 +70,14 @@ class FittingVarious():
                 elif i in id_list2 and j in id_list2:
                     cctype_list.append("BB")
                     cc_values.append(float(cols[2]))
+                # i, j がどちらにも含まれていない場合には、何もしない
+                elif (i not in id_list1 and i not in id_list2) or (j not in id_list1 and j not in id_list2):
+                    continue
                 # それ以外の場合はABとなる
                 else:
                     cctype_list.append("AB")
                     cc_values.append(float(cols[2]))
-
+        
         # cc_values が格納されたDataFrameを返す
         ret = pd.DataFrame(cc_values, columns=["cc"])
         # retにcctype_listを追加する
@@ -263,7 +266,6 @@ class FittingVarious():
         # パラメータを表示する
         for popt in df['popt']:
             print(popt)
-        #print(df['popt'])
 
         self.makeResultantPlots(each_model, df1, df2, df12, clst1name, clst2name, results1, results2, results3, ccthresh, binparam)
 
@@ -312,15 +314,15 @@ class FittingVarious():
         # ヒストグラムは水平方向に３つ並べる
         n_bins = int(len(df1['cc']) / binparam)
         plt.subplot(1,3,1)
-        plt.hist(df1['cc'], bins=n_bins,alpha=0.3)
+        plt.hist(df1['cc'], bins=n_bins,alpha=0.3,density=False)
         plt.title(f"{clst1name}")
         n_bins = int(len(df2['cc']) / binparam)
         plt.subplot(1,3,2)
-        plt.hist(df2['cc'], bins=n_bins,alpha=0.3)
+        plt.hist(df2['cc'], bins=n_bins,alpha=0.3,density=False)
         plt.title(f"{clst2name}")
         plt.subplot(1,3,3)
         n_bins = int(len(df12['cc']) / binparam)
-        plt.hist(df12['cc'], bins=n_bins,alpha=0.3)
+        plt.hist(df12['cc'], bins=n_bins,alpha=0.3,density=False)
         plt.subplot(1,3,1)
         plt.xlim(0.8,1.0)
         plt.plot(x, model_func(x, *popt1))
@@ -578,4 +580,6 @@ if __name__ == "__main__":
     elif options.process_type == "fit_various":
         ccModel.fitAll(options.cluster1, options.cluster2, float(options.cc_threshold), int(options.nbins))
     elif options.process_type == "test":
+        # thresholdの数値を表示する
+        print(f"cc_threshold={options.cc_threshold}")
         ccModel.testRun(options.cluster1, options.cluster2, float(options.cc_threshold), int(options.nbins))

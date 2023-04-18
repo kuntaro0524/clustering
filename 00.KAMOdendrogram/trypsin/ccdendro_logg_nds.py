@@ -16,17 +16,17 @@ from scipy.stats import lognorm
 # [0.93177759 0.00324547 0.01636987]
 # [0.7316575  0.01419515 0.02412596]
 
-sigma_aa = 0.576
-loc_aa = 0.0033695
-scale_aa = 0.02383
+sigma_aa = 0.93599
+loc_aa = 0.00306
+scale_aa = 0.0175
 
-sigma_bb= 0.9317
-loc_bb= 0.003245
-scale_bb= 0.01636
+sigma_bb= 0.45700
+loc_bb= 0.00122
+scale_bb= 0.02444
 
-sigma_ab=0.7316
-loc_ab=0.01419
-scale_ab=0.024125
+sigma_ab=0.60928
+loc_ab=0.01301
+scale_ab=0.0225
 
 sample_dict=[{"name":"A-A","sigma":sigma_aa,"loc":loc_aa,"scale":scale_aa},
              {"name":"A-B","sigma":sigma_ab,"loc":loc_ab,"scale":scale_ab},

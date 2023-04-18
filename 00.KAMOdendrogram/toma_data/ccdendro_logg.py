@@ -16,17 +16,23 @@ n_each = int(n_total/2.0)
 # [0.83766395 0.00151831 0.01265517]
 # [ 5.33851726e-01 -2.87150706e-04  3.08459873e-02]
 
-sigma_aa = 0.6430
-loc_aa = 1.166e-4
-scale_aa = 1.5189E-2
+# 230418
+# [0.93599885 0.00306387 0.01758039]
+# [0.45700166 0.00122989 0.0244446 ]
+# [0.60928141 0.01302764 0.02259892]
 
-sigma_bb= 0.8377
-loc_bb= 0.001518
-scale_bb= 0.01265
 
-sigma_ab=5.3385e-1
-loc_ab=-2.8715e-4
-scale_ab=3.0845e-2
+sigma_aa = 0.9359
+loc_aa = 0.00306
+scale_aa = 0.0175
+
+sigma_bb= 0.457
+loc_bb= 0.00122
+scale_bb= 0.024444
+
+sigma_ab=0.60928
+loc_ab=0.013027
+scale_ab=0.02259
 
 sample_dict=[{"name":"A-A","sigma":sigma_aa,"loc":loc_aa,"scale":scale_aa},
              {"name":"A-B","sigma":sigma_ab,"loc":loc_ab,"scale":scale_ab},
