@@ -32,34 +32,19 @@ class MyDistribution(rv_continuous):
 
 # MyDistributionクラスのインスタンスを生成し、ランダムな数値を取り出す関数を定義する
 mydist = MyDistribution(a=bin_centers[0], b=bin_centers[-1])
-def random():
-    return mydist.rvs()
-
-
-# 1000回のサンプリングを行い、ヒストグラムをプロットする
-alist = []
-for i in range(0,1000):
-    print(i)
-    tmpd = random()
-    alist.append(tmpd)
-
-data = np.array(alist)
-
-plt.hist(data, bins=50, density=True, alpha=0.5, label='Histogram')
-plt.show()
-#plt.show()    
 
 from multiprocessing import Pool
 
-def random():
+def random2(self):
     return mydist.rvs()
 
 if __name__ == '__main__':
-    with Pool(processes=8) as pool:
-        results = pool.map(random, range(1000))
+    with Pool(processes=4) as pool:
+        # 1000回のサンプリングを行い、ヒストグラムをプロットする
+        results = pool.map(random2, range(1000))
 
-data = np.array(results)
+    data = np.array(results)
 
-# 結果をプロット
-plt.hist(data, bins=50, density=True, alpha=0.5, label='Histogram')
-plt.show()
+    # 結果をプロット
+    plt.hist(data, bins=50, density=True, alpha=0.5, label='Histogram')
+    plt.show()
