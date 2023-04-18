@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 # データを生成する
 np.random.seed(123)
 data = np.concatenate([np.random.normal(loc=1, scale=1, size=1000),
-                       np.random.normal(loc=2, scale=0.5, size=1000)])
+                       np.random.normal(loc=2, scale=0.3, size=1000)])
 
 # ヒストグラムを描画する
 plt.hist(data, bins=100, density=True, alpha=0.5)
