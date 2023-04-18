@@ -19,8 +19,8 @@ pdf = spline(x_range)
 pdf = pdf / np.sum(pdf)
 
 # 確率密度関数をプロット
-#plt.plot(x_range, pdf)
-#plt.show()
+plt.plot(x_range, pdf)
+plt.show()
 
 
 from scipy.stats import rv_continuous
@@ -39,12 +39,26 @@ def random2(self):
     return mydist.rvs()
 
 if __name__ == '__main__':
-    with Pool(processes=4) as pool:
+    with Pool(processes=24) as pool:
         # 1000回のサンプリングを行い、ヒストグラムをプロットする
         results = pool.map(random2, range(1000))
 
     data = np.array(results)
 
     # 結果をプロット
-    plt.hist(data, bins=50, density=True, alpha=0.5, label='Histogram')
+    # X軸は共通
+    # Y軸は左右２軸でこれは左(y1軸)
+    fig, ax1 = plt.subplots()
+    ax1.hist(data, bins=10, density=False)
+    ax1.set_xlabel('x')
+    ax1.set_ylabel('hist', color='b') 
+    ax1.tick_params('y', colors='b')
+    
+    # 確率密度関数をプロット
+    # 縦軸はy2軸とする
+    ax2 = ax1.twinx()
+    ax2.plot(x_range, pdf, color='r')
+    ax2.set_ylabel('pdf', color='r')
+    ax2.tick_params('y', colors='r')
+    
     plt.show()
