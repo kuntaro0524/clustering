@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import sys
 import pandas as pd
 import numpy as np
@@ -127,7 +128,7 @@ class FittingVarious():
     # CCのdataframeを受け取ってヒストグラムを返す関数
     # おもにfittingのために利用する
     # nbin_ratio: を設定すると、ヒストグラムのbin数を調整できる
-    def getHist(self, cc_df, cc_threshold = 0.8, nbin_ratio=8):
+    def getHist(self, cc_df, cc_threshold = 0.8, nbins=8):
         # CCの数値が0.8以上のものだけに限定する
         filter_condition = cc_df['cc'] >= cc_threshold
         cc_df = cc_df[filter_condition]
@@ -135,10 +136,11 @@ class FittingVarious():
         # CC data array
         ccdata = cc_df['cc']
         # binの数を計算する→改善の余地がある
-        n_bins = int(len(ccdata) / nbin_ratio)
+        #n_bins = int(len(ccdata) / nbin_ratio)
+        #n_bins = int(len(ccdata) / nbin_ratio)
 
         # 初期値ヒストグラムを決定→フィッティングのクオリティはnbinsに敏感である
-        hist, bin_edges = np.histogram(ccdata, bins=n_bins)
+        hist, bin_edges = np.histogram(ccdata, bins=nbins)
         bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
 
         return hist, bin_centers, bin_edges
@@ -268,6 +270,61 @@ class FittingVarious():
             print(popt)
 
         self.makeResultantPlots(each_model, df1, df2, df12, clst1name, clst2name, results1, results2, results3, ccthresh, binparam)
+
+    def fitOnly(self, clst1, clst2, ccthresh, binnum, model_idx=1):
+        # dataframeの準備
+        df1,df2,df12 = self.prepareDataframes(clst1, clst2, ccthresh)
+        
+        # フィッティングを実施する
+        # modelは2番目のインデックスのみを使用する
+        model_funcs = self.getModelFunctions()
+        each_model = model_funcs[model_idx]
+        model_name = self.func_name[model_idx]
+        initial_param = self.initial_params[model_idx]
+        
+        df_list=[df1, df2, df12]
+
+        for idx,df_target in enumerate(df_list):
+            print("model_name: ", model_name)
+            aic_min =  999999
+            popt_min=[]
+            #for nbin in np.arange(10, 150,10):
+            for nbin in [80]:
+                #print("====df_target:=====", idx)
+                #print("nbin: ", nbin)
+                results = self.fit2function(df_target, each_model, initial_param, nbins=nbin, cc_threshold=ccthresh)
+                aic_tmp = results['aic']
+                # aic_tmpがNoneの場合は処理をスキップする
+                #print(aic_tmp)
+                if aic_tmp is None:
+                    continue
+                if aic_min > aic_tmp:
+                    aic_min = aic_tmp
+                    nbin_min = nbin
+                    popt_min = results['popt']
+                #self.drawResults(df_target, each_model, nbin_min, popt_min)
+            print("====df_target:=====", idx)
+            print("nbin_min: ", nbin_min)
+            print("popt_min: ", popt_min)
+            print("aic_min: ", aic_min)
+            # フィッティングした結果を描画する
+            self.drawResults(df_target, each_model, nbin_min, popt_min)
+        #results = self.fit2function(df1, each_model, initial_param, nbins=binnum, cc_threshold=ccthresh)
+        #print(results)
+    
+    def drawResults(self, df_target, model_func, nbins, popt):
+        # フィッティングした結果を描画する
+        # 左右のY軸を利用する
+        fig, ax1 = plt.subplots()
+        # ccのヒストグラムを描く
+        ax1.hist(df_target['cc'], bins=nbins, density=False,alpha=0.2)
+        # フィッティングした関数を描く
+        x = np.linspace(0.8, 1.0, 2000)
+        y = model_func(x, *popt)
+        ax2 = ax1.twinx()
+        ax2.plot(x,y) 
+        plt.show()
+
 
     def makeResultantPlots(self, model_func, df1, df2, df12, clst1name, clst2name, results1, results2, results3, ccthresh, binparam):
         # 各種プロットを作成する
