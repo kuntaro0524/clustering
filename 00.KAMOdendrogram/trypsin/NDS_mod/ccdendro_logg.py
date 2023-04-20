@@ -26,7 +26,6 @@ n_each = int(n_total/2.0)
 #[0.89524981 0.01490806 0.00835992]
 #[0.43960031 0.01302677 0.0185993 ]
 
-
 sigma_aa = 0.93599
 loc_aa = 0.00306
 scale_aa = 0.0175
@@ -41,17 +40,17 @@ scale_ab=0.0225
 
 # 正直にめっちゃあうようにしたやつ
 # 100 sets で threshold = 0.65
-#sigma_aa = 0.7044
-#loc_aa = 0.0027
-#scale_aa = 0.0131
+sigma_aa = 0.7044
+loc_aa = 0.0027
+scale_aa = 0.0131
 
-#sigma_bb = 0.7648
-#loc_bb = 0.0060
-#scale_bb = 0.0247
+sigma_bb = 0.7648
+loc_bb = 0.0060
+scale_bb = 0.0247
 
-#sigma_ab = 0.7648
-#loc_ab = 0.0060
-#scale_ab = 0.0250
+sigma_ab = 0.7648
+loc_ab = 0.0060
+scale_ab = 0.0250
 
 sample_dict=[{"name":"apo-apo","sigma":sigma_aa,"loc":loc_aa,"scale":scale_aa},
              {"name":"apo-benz","sigma":sigma_ab,"loc":loc_ab,"scale":scale_ab},

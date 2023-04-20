@@ -16,6 +16,7 @@ from scipy.stats import lognorm
 # [0.93177759 0.00324547 0.01636987]
 # [0.7316575  0.01419515 0.02412596]
 
+# Final version
 sigma_aa = 0.93599
 loc_aa = 0.00306
 scale_aa = 0.0175

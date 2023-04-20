@@ -11,44 +11,25 @@ from scipy.cluster.hierarchy import fcluster
 n_total=int(sys.argv[1])
 n_each = int(n_total/2.0)
 
+# 0072
+alpha_aa = -4.6643
+loc_aa = 0.9941
+scale_aa = 0.0111
 
-# 10 
-# Cluster 0072: alpha=-5.6823, loc=0.9868, scale=0.0187
-# Cluster 0071: alpha=-20.7491, loc=0.9948, scale=0.0238
-# Cluster 0072 and 0071: alpha=-10.3442, loc=0.9797, scale=0.0246
+# 0076
+alpha_bb = -14.2627
+loc_bb = 0.9965
+scale_bb = 0.0167
 
-# alpha, loc, scale
-# AA
-alpha_aa = -5.6823
-loc_aa = 0.9868
-scale_aa = 0.0187
+# 0072/0076
+alpha_ab = -3.3401
+loc_ab = 0.9838
+scale_ab = 0.0138
 
-# BB
-alpha_bb = -20.7491
-loc_bb = 0.9948
-scale_bb = 0.0238
-
-# AB
-alpha_ab = -10.3442
-loc_ab = 0.9797
-scale_ab = 0.0246
-
-# alpha, loc, scale
-# AA
-alpha_aa = -15.2
-loc_aa = 0.9944
-scale_aa = 0.0195
-
-# BB
-alpha_bb = -8.4750
-loc_bb = 0.9883
-scale_bb = 0.0251
-
-# AB
-alpha_ab = -11.379
-loc_ab = 0.9799
-scale_ab = 0.02777
-
+# 230420
+# POPT: [-4.6643  0.9941  0.0111]
+# POPT: [-14.2627   0.9965   0.0167]
+# POPT: [-3.3401  0.9838  0.0138]
 
 
 sample_dict=[{"name":"A-A","alpha":alpha_aa,"loc":loc_aa,"scale":scale_aa},
@@ -131,7 +112,6 @@ for idx1,s1 in enumerate(sample_list):
         dist = np.sqrt(1-cctmp*cctmp)
         ofile.write("%9.5f\n"%cctmp)
         dis_list.append(dist)
-        print("SDFSDFSDFSDFSDFSDFSDFSDFS",len(dis_list))
 
 ofile.close()
 

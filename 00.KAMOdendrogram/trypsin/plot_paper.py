@@ -28,7 +28,7 @@ ax.set_ylabel("Threshold")
 ax.legend()
 
 # y=0.6 y=0.7 に囲まれた領域を薄いピンク色にする
-ax.axhspan(0.6, 0.7, facecolor="pink", alpha=0.5)
+#ax.axhspan(0.6, 0.7, facecolor="pink", alpha=0.5)
 
 plt.savefig("paper.png")
 plt.show()

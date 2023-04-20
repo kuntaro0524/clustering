@@ -8,22 +8,15 @@ from scipy.stats import skewnorm
 from scipy.cluster.hierarchy import fcluster
 from scipy.stats import lognorm
 
-# 230418 revised version
-sigma_aa = 0.257
-loc_aa = -0.0058
-scale_aa = 0.2356
-
-sigma_bb= 
-loc_bb= 0.00122
-scale_bb= 0.024444
-
-sigma_ab=0.60928
-loc_ab=0.013027
-scale_ab=0.02259
+# 230419 revised version
+sigma_aa,loc_aa,scale_aa= 0.48318638,-0.00173054, 0.01571608
+sigma_bb,loc_bb,scale_bb=6.54281090e-01,4.03679076e-04,1.19122440e-02
+sigma_ab,loc_ab,scale_ab= 0.41541101,-0.00301814 ,0.03127803
 
 sample_dict=[{"name":"A-A","sigma":sigma_aa,"loc":loc_aa,"scale":scale_aa},
              {"name":"A-B","sigma":sigma_ab,"loc":loc_ab,"scale":scale_ab},
              {"name":"B-B","sigma":sigma_bb,"loc":loc_bb,"scale":scale_bb}]
+
 
 def calcCCvalue(stat_dict):
     sigma=stat_dict['sigma']
