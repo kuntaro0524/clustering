@@ -34,17 +34,37 @@ if __name__ == "__main__":
     
     (options, args) = parser.parse_args()
 
-    if options.process_type == "histogram":
-        ccModel.plotHistOnly(options.cluster1, options.cluster2, float(options.cc_threshold), int(options.nbins))
-    elif options.process_type == "logscale":
-        ccModel.runLogscale(options.cluster1, options.cluster2, float(options.cc_threshold), int(options.nbins))
-    elif options.process_type == "fit_various":
-        ccModel.fitAll(options.cluster1, options.cluster2, float(options.cc_threshold), int(options.nbins))
-    elif options.process_type == "test":
-        # thresholdの数値を表示する
-        ccModel.testRun(options.cluster1, options.cluster2, float(options.cc_threshold), int(options.nbins))
-    elif options.process_type == "ffff":
-        # thresholdの数値を表示する
-        ccModel.fitOnly(options.cluster1, options.cluster2, float(options.cc_threshold), int(options.nbins), int(options.model_index))
-    elif options.process_type == "trypsin":
-        ccModel.fitTrypsinFromFilelist("cctable.dat", "filenames.lst", float(options.cc_threshold), int(options.nbins))
+    dfAA,dfBB,dfAB=ccModel.extractCCs("cctable.dat", "filenames.lst",0.8)
+
+    # Trypsinのやつは最適値を選択している
+    # nbins=85
+    aaa=[0.7044,0.0027,0.0131]
+    bba=[0.7648,0.0060,0.0247]
+    aba=[0.7871,0.0147,0.0250]
+    
+    sigma_aa = aaa[0]
+    loc_aa = aaa[1]
+    scale_aa = aaa[2]
+    
+    sigma_bb = bba[0]
+    loc_bb = bba[1]
+    scale_bb = bba[2]
+    
+    sigma_ab = aba[0]
+    loc_ab = aba[1]
+    scale_ab = aba[2]
+
+    # FittingVarious.model_funcs[1] を利用して数値列を作る
+    # 0: skewed, 1: logg, 2: lognorm
+    import numpy as np
+    x = np.linspace(0, 1, 1000)
+    ccModel.getModelFunctions()
+
+    y_aa = ccModel.model_funcs[2](x, sigma_aa, loc_aa, scale_aa)
+
+    # dfAAの 'cc' でヒストグラムを作成する
+    import matplotlib.pyplot as plt
+    plt.hist(dfAA['cc'], bins=int(len(dfAA['cc'])/int(options.nbins)), density=True, alpha=0.5, label='AA')
+    plt.plot(x,y_aa)
+    plt.xlim(0.9,1)
+    plt.show()

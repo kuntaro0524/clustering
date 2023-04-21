@@ -104,6 +104,7 @@ aba= [0.91875735, 0.00667211, 0.02909116]
 # bba=[0.5318271 , 0.01370283, 0.01926178]
 # aba=[0.91875735, 0.00667211, 0.02909116]
 
+# Trypsinのやつは最適値を選択している
 # nbins=85
 aaa=[0.7044,0.0027,0.0131]
 bba=[0.7648,0.0060,0.0247]
@@ -129,7 +130,6 @@ sample_dict=[{"name":"apo-apo","sigma":sigma_aa,"loc":loc_aa,"scale":scale_aa},
 figname="sigma_%.1f_%.3f_%.3f_N%05d" % (
     sample_dict[1]['sigma'],sample_dict[1]['loc'], sample_dict[1]['scale'], n_total)
     
-
 files=glob.glob("%s*"%figname)
 n_exist=len(files)
 if n_exist != 0:

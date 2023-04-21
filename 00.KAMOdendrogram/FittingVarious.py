@@ -307,6 +307,44 @@ class FittingVarious():
 
         self.makeResultantPlots(each_model, df1, df2, df12, clst1name, clst2name, results1, results2, results3, ccthresh, binparam)
 
+    # Extract CCs from cctable.dat by using filename_list
+    def extractCCs(self, cctable_path, filename_list_path, cc_threshold):
+        # cctable.datを読み込む
+        cctable = pd.read_csv(cctable_path, delim_whitespace=True)
+
+        ana_types = ["AA", "BB", "AB"]
+
+        # CCの数値が0.8以上のものだけに限定する
+        filter_condition = cctable['cc'] >= cc_threshold
+        cctable = cctable[filter_condition]
+
+        filename_list = pd.read_csv(filename_list_path, header=None)
+
+        cc_apo_apo = []
+        cc_apo_benz = []
+        cc_benz_benz = []
+
+        self.getModelFunctions()
+
+        for index, row in cctable.iterrows():
+            i_type = filename_list.iloc[int(row['i']), 0]
+            j_type = filename_list.iloc[int(row['j']), 0]
+
+            if i_type == 'apo' and j_type == 'apo':
+                cc_apo_apo.append(row['cc'])
+            elif i_type == 'apo' and j_type == 'benz':
+                cc_apo_benz.append(row['cc'])
+            elif i_type == 'benz' and j_type == 'benz':
+                cc_benz_benz.append(row['cc'])
+        
+        # それぞれDataframeに変換する
+        aa_ccdf = pd.DataFrame(cc_apo_apo, columns=['cc'])
+        bb_ccdf = pd.DataFrame(cc_benz_benz, columns=['cc'])
+        ab_ccdf = pd.DataFrame(cc_apo_benz, columns=['cc'])
+
+        # Dataframeを返却する
+        return aa_ccdf, bb_ccdf, ab_ccdf
+
     # 引数は
     # cctable.datのパス
     # filenames.lstのパス
@@ -360,24 +398,44 @@ class FittingVarious():
             elif ana_type=="BB":
                 ccdata = ab_ccdf
 
-            # 初期値？
-            hist, bin_edges = np.histogram(ccdata, bins=nbins)
-            bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
-            aic, popt, pcov=self.fitFunc(ccdata,model_func, init_params, cc_threshold, nbins=nbins)
+            # aicが最小になるものを選ぶ
+            aic_min =  999999
+            popt_min=[]
+            #for nbin in np.arange(10, 150,10):
+            for nbin in [80,100]:
+                # 初期値？
+                # nbinsの数値を変更しながらフィッティングを実施する
+                # aicが最も小さいものを選定
+                hist, bin_edges = np.histogram(ccdata, bins=nbins)
+                bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+                aic, popt, pcov=self.fitFunc(ccdata,model_func, init_params, cc_threshold, nbins=nbins)
+                if aic is None:
+                    continue
+                if aic_min > aic:
+                    aic_min = aic
+                    nbin_min = nbin
+                    popt_min = popt
 
+            # ana_type を表示
+            print(ana_type)
+            print("nbin_min: ", nbin_min)
+            print("popt_min: ", popt_min)
+            print("aic_min: ", aic_min)
+
+            # フィッティングした結果を描画する
+            self.drawResults(ccdata, model_func, nbin_min, popt_min)
             # logを出力する
             self.logger.info("AIC: {}".format(aic))
             # フィッティング結果を出力する
             # すべてのパターンについてCCについてhistogramを作成する
-            plt.hist(ccdata['cc'], bins=nbins, alpha=0.5, label='AA')
+            # plt.hist(ccdata['cc'], bins=nbins, alpha=0.5, label='AA')
             # フィッティング結果を出力する
-            x = np.linspace(0, 1, 10000)
-            plt.plot(x, model_func(x, *popt), label='fit')
-
+            # x = np.linspace(0, 1, 10000)
+            # plt.plot(x, model_func(x, *popt), label='fit')
             results_array.append((ana_type, popt))
 
-        plt.xlim(0.8,1.0)
-        plt.show()
+        #plt.xlim(0.8,1.0)
+        #plt.show()
 
         print(results_array)
 
