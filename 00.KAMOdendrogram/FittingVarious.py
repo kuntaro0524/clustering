@@ -12,6 +12,7 @@ import logging
 class FittingVarious():
     def __init__(self):
         self.func_name = ["skewed gaussian", "beta pdf", "log_norm", "betaprime_pdf","sk noise"]
+        self.initial_params = [(-15,0.99,0.02),(1.5, 2.5, 0,1),(0.5109,-0.014,0.0149),(1.5, 2.5), (-15.0, 0.99, 0.02, 0.5, 0.0), (0.5109, -0.014, 0.0149, 0.5, 0.0)]
         self.isDebug = False
 
         # logger を設定する
@@ -120,7 +121,6 @@ class FittingVarious():
         # BETA FUNCTION initial parameters for CC
         # skewed gaussian, beta pdf, log_norm, betaprime_pdf
         # def log_norm_noise(x, sigma, loc, scale, a,b):
-        self.initial_params = [(-15,0.99,0.02),(1.5, 2.5, 0,1),(0.5109,-0.014,0.0149),(1.5, 2.5), (-15.0, 0.99, 0.02, 0.5, 0.0), (0.5109, -0.014, 0.0149, 0.5, 0.0)]
         #self.initial_params = [(0.5109,-0.014,0.0149)]
 
         return self.model_funcs
@@ -144,6 +144,41 @@ class FittingVarious():
         bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
 
         return hist, bin_centers, bin_edges
+
+    # model_func
+    # self.model_funcs = [skewed_gaussian, beta_pdf, log_norm, betaprime_pdf, skewed_noise, log_norm_noise]
+    # のうちのどれか、であり、関数として渡される
+    def fitFunc(self, cc_df, model_func, initial_param, cc_threshold = 0.8, nbins=20):
+        # CCの数値が0.8以上のものだけに限定する
+        filter_condition = cc_df['cc'] >= cc_threshold
+        cc_df = cc_df[filter_condition]
+        # CCの標準偏差,medianを計算する
+        sigma_data = np.std(cc_df['cc'])
+        median_data = np.median(cc_df['cc'])
+        # CCの標準偏差を表示する
+        self.logger.info(f"{sigma_data}")
+        self.logger.info(f"{median_data}")
+
+        # ヒストグラムを取得する
+        hist, bin_centers, bin_edges = self.getHist(cc_df, cc_threshold, nbins)
+
+        # フィッティングを実施する
+        # フィッティングには失敗する可能性があるので、その場合はエラーを出力する
+        try:
+            popt, pcov = curve_fit(model_func, bin_centers, hist, p0=initial_param)
+            residuals = hist - model_func(bin_centers, *popt)
+            sse = np.sum(residuals**2)
+            aic = 2 * len(initial_param) + len(bin_centers) * np.log(sse / len(bin_centers))
+            self.logger.info(f"AIC: {aic} for {model_func}")
+            self.logger.info(f"popt: {popt}")
+            # aic_list, model_funcs, popt_listを返す
+            return aic, popt, pcov
+        except RuntimeError as e:
+            func_name = model_func.__name__
+            self.logger.info(f"Error - {func_name} - curve_fit failed")
+            self.logger.info(e)
+            return None,None,None
+    # end of def fitFunc
 
     # CCのDataFrameを受け取って、CCの分布のヒストグラムを種々のモデル式に対してフィッティングする
     def fit(self, cc_df, cc_threshold = 0.8, nbins=20):
@@ -184,6 +219,7 @@ class FittingVarious():
 
         # aic_list, model_funcs, popt_listを返す
         return aic_list, model_funcs, popt_list
+    # end of def fit
 
     # fit_funcには関数そのものが入る
     # initial_guessには、fit_funcのパラメータの初期値が入る 
@@ -271,6 +307,82 @@ class FittingVarious():
 
         self.makeResultantPlots(each_model, df1, df2, df12, clst1name, clst2name, results1, results2, results3, ccthresh, binparam)
 
+    # 引数は
+    # cctable.datのパス
+    # filenames.lstのパス
+    # ccの閾値
+    def fitTrypsinFromFilelist(self, cctable_path, filename_list_path, cc_threshold, nbins=20):
+        # cctable.datを読み込む
+        cctable = pd.read_csv(cctable_path, delim_whitespace=True)
+
+        ana_types = ["AA", "BB", "AB"]
+
+        # CCの数値が0.8以上のものだけに限定する
+        filter_condition = cctable['cc'] >= cc_threshold
+        cctable = cctable[filter_condition]
+
+        filename_list = pd.read_csv(filename_list_path, header=None)
+
+        cc_apo_apo = []
+        cc_apo_benz = []
+        cc_benz_benz = []
+
+        self.getModelFunctions()
+
+        for index, row in cctable.iterrows():
+            i_type = filename_list.iloc[int(row['i']), 0]
+            j_type = filename_list.iloc[int(row['j']), 0]
+
+            if i_type == 'apo' and j_type == 'apo':
+                cc_apo_apo.append(row['cc'])
+            elif i_type == 'apo' and j_type == 'benz':
+                cc_apo_benz.append(row['cc'])
+            elif i_type == 'benz' and j_type == 'benz':
+                cc_benz_benz.append(row['cc'])
+        
+        # それぞれDataframeに変換する
+        aa_ccdf = pd.DataFrame(cc_apo_apo, columns=['cc'])
+        bb_ccdf = pd.DataFrame(cc_benz_benz, columns=['cc'])
+        ab_ccdf = pd.DataFrame(cc_apo_benz, columns=['cc'])
+
+        model_func = self.model_funcs[2]
+        init_params = self.initial_params[2]
+
+        # すべてのパターンについてCCについてのフィッティングを実施する
+        results_array = []
+        for ana_type in ana_types:
+            self.logger.info(f"################## {ana_type} is processing")
+            if ana_type=="AA":
+                # CC data array
+                ccdata = aa_ccdf
+            elif ana_type=="AB":
+                ccdata = bb_ccdf
+            elif ana_type=="BB":
+                ccdata = ab_ccdf
+
+            # 初期値？
+            hist, bin_edges = np.histogram(ccdata, bins=nbins)
+            bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+            aic, popt, pcov=self.fitFunc(ccdata,model_func, init_params, cc_threshold, nbins=nbins)
+
+            # logを出力する
+            self.logger.info("AIC: {}".format(aic))
+            # フィッティング結果を出力する
+            # すべてのパターンについてCCについてhistogramを作成する
+            plt.hist(ccdata['cc'], bins=nbins, alpha=0.5, label='AA')
+            # フィッティング結果を出力する
+            x = np.linspace(0, 1, 10000)
+            plt.plot(x, model_func(x, *popt), label='fit')
+
+            results_array.append((ana_type, popt))
+
+        plt.xlim(0.8,1.0)
+        plt.show()
+
+        print(results_array)
+
+    # end of def fitTrypsinFromFilelist(self, cctable_path, filename_list_path, cc_threshold, nbins=20):
+
     def fitOnly(self, clst1, clst2, ccthresh, binnum, model_idx=1):
         # dataframeの準備
         df1,df2,df12 = self.prepareDataframes(clst1, clst2, ccthresh)
@@ -324,7 +436,6 @@ class FittingVarious():
         ax2 = ax1.twinx()
         ax2.plot(x,y) 
         plt.show()
-
 
     def makeResultantPlots(self, model_func, df1, df2, df12, clst1name, clst2name, results1, results2, results3, ccthresh, binparam):
         # 各種プロットを作成する

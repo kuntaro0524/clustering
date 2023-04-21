@@ -47,3 +47,5 @@ if __name__ == "__main__":
     elif options.process_type == "ffff":
         # thresholdの数値を表示する
         ccModel.fitOnly(options.cluster1, options.cluster2, float(options.cc_threshold), int(options.nbins), int(options.model_index))
+    elif options.process_type == "trypsin":
+        ccModel.fitTrypsinFromFilelist("cctable.dat", "filenames.lst", float(options.cc_threshold), int(options.nbins))

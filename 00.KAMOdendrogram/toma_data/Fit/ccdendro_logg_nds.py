@@ -8,32 +8,20 @@ from scipy.stats import skewnorm
 from scipy.cluster.hierarchy import fcluster
 from scipy.stats import lognorm
 
-#scale=float(sys.argv[1])
-#n_total=int(sys.argv[1])
-#n_each = int(n_total/2.0)
+# 230419 revised version
+sigma_aa,loc_aa,scale_aa= 0.48318638,-0.00173054, 0.01571608
+sigma_bb,loc_bb,scale_bb=6.54281090e-01,4.03679076e-04,1.19122440e-02
+sigma_ab,loc_ab,scale_ab= 0.41541101,-0.00301814 ,0.03127803
 
-# [0.57589715 0.0033695  0.02383734]
-# [0.93177759 0.00324547 0.01636987]
-# [0.7316575  0.01419515 0.02412596]
-
-# [('AA', array([0.72011622, 0.00189438, 0.01493311])), ('BB', array([0.53182721, 0.01370284, 0.01926178])), ('AB', array([0.91875735, 0.00667211, 0.02909116]))]
-
-# Final version
-sigma_aa = 0.93599
-loc_aa = 0.00306
-scale_aa = 0.0175
-
-sigma_bb= 0.45700
-loc_bb= 0.00122
-scale_bb= 0.02444
-
-sigma_ab=0.60928
-loc_ab=0.01301
-scale_ab=0.0225
+# 230421
+sigma_aa,loc_aa,scale_aa=0.40937419,-0.00289777, 0.0162868
+sigma_bb,loc_bb,scale_bb=1.01742228,0.00229134,0.01365336
+sigma_ab,loc_ab,scale_ab=0.26456247,-0.00657071, 0.03214396
 
 sample_dict=[{"name":"A-A","sigma":sigma_aa,"loc":loc_aa,"scale":scale_aa},
              {"name":"A-B","sigma":sigma_ab,"loc":loc_ab,"scale":scale_ab},
              {"name":"B-B","sigma":sigma_bb,"loc":loc_bb,"scale":scale_bb}]
+
 
 def calcCCvalue(stat_dict):
     sigma=stat_dict['sigma']

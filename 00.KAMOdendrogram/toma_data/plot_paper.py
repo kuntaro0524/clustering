@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import sys
 
 # CSVファイルを読み込む
-df = pd.read_csv(sys.argv[1], header=None, names=["DataSize", "Threshold"])
+df = pd.read_csv(sys.argv[1], header=None, names=["# of datasets", "Threshold"])
 
 # データをデータ数ごとにグループ化して平均を計算
 df_mean = df.groupby("DataSize").mean()
