@@ -25,7 +25,24 @@ name_list = []
 for line in lines:
     name_list.append(line.strip())
 
+
 Z = hierarchy.linkage(dis_list, 'ward')
+
+# 最後から１つ目で、一番高い山のWard distanceを取得
+last_merge = Z[-1]
+thresh0 = last_merge[2]
+
+# 最後のから２つ目、で、一番高い山のWard distanceを取得
+last_merge = Z[-2]  
+threshold = last_merge[2]  
+
+# 新しい threshold
+max_thresh = threshold
+print("max_thresh",thresh0)
+new_thresh = threshold/thresh0
+
+print(new_thresh)
+    
 plt.figure()
 dn = hierarchy.dendrogram(Z,labels=name_list)
 plt.savefig("dendrogram.jpg")

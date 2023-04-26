@@ -13,6 +13,7 @@ import pandas as pd
 filelist = sys.argv[1:]
 
 plot_name = "new_threshold"
+#plot_name = "cluster_1_count"
 #plot_name = "threshold"
 if len(filelist) != 1:
     plt.figure(figsize=(10,10))
@@ -36,13 +37,15 @@ if len(filelist) != 1:
         # new_threshold に対して score をプロット
         #plt.errorbar(df[plot_name], df["score"]["mean"], yerr=df["score"]["std"], label=f)
         # 'plot_name' の小さい順にソート
-        df = df.sort_values(by=[(plot_name,'mean')])
+        #df = df.sort_values(by=[(plot_name,'mean')])
         #plt.plot(df[plot_name], df["score"]["mean"],'o-',label=f)
         # delta_locをx軸にする
         #plt.plot(df.index, df["score"]["mean"],'o-',label=f)
         # fontsize は 20
         plt.tick_params(labelsize=20)
-        plt.plot(df[plot_name], df["score"]["mean"],'o-',label=f'{nds}')
+        # 横軸にdelta_locを使う
+        plt.plot(df.index, df['score']['mean'],'o-',label=f)
+        plt.xticks(df.index)
         plt.ylabel("Score", fontsize=20)
         plt.xlabel("Isomorphic threshold", fontsize=20)
         

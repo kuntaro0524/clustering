@@ -87,10 +87,7 @@ def evaluateClustering(Z, sample_list):
 def getScore(n1,n2, cluster_1_A_purity, cluster_1_B_purity, cluster_2_A_purity, cluster_2_B_purity):
     alpha = 0.6
     score_balance = 1 - abs(n1 - n2) / (n1 + n2)
-    score_purity = min(cluster_1_A_purity, cluster_1_B_purity, cluster_2_A_purity, cluster_2_B_purity)
-    score_total = alpha * score_balance + (1 - alpha) * score_purity
-
-    return score_total
+    return score_balance
 
 def proc(delta_loc, scale_scale,filename):
     #sigma_aa,loc_aa,scale_aa=0.40937419,-0.00289777, 0.0162868
@@ -167,13 +164,12 @@ def proc(delta_loc, scale_scale,filename):
     if not os.path.exists("nds.csv"):
         outfile=open("nds.csv","w")
         # ヘッダーを書き出す
-        outfile.write("nds,delta_loc,scale_scale,threshold,new_threshold,filename,cluster_1_A_purity,cluster_1_B_purity,cluster_1_count,cluster_2_count,score\n")
+        outfile.write("nds,delta_loc,scale_scale,threshold,new_threshold,filename,cluster_1_A_purity,cluster_1_B_purity,cluster_2_A_purity, cluster_2_B_purity, cluster_1_count,cluster_2_count,score\n")
     else:
         outfile=open("nds.csv","a")
-    # delta_loc, scale_scale, threshold, new_threshold, filename, cluster_1_A_purity, cluster_1_B_purity, cluster_1_count, cluster_2_count, score
-    outfile.write("%d,%8.4f,%8.4f,%8.4f,%8.4f,%s,%8.4f,%8.4f,%d,%d,%8.4f\n"
-                    % (n_total,delta_loc, scale_scale, threshold, new_thresh, filename, cluster_1_A_purity, cluster_1_B_purity, cluster_1_count, cluster_2_count, score))
-                 
+        # 書き出すのは
+        # nds,delta_loc,scale_scale,threshold,new_threshold,filename,cluster_1_A_purity,cluster_1_B_purity,cluster_2_A_purity, cluster_2_B_purity, cluster_1_count,cluster_2_count,score
+        outfile.write("%8.4f,%8.4f,%8.4f,%8.4f,%8.4f,%s,%8.4f,%8.4f,%8.4f,%8.4f,%d,%d,%8.4f\n" % (n_total, delta_loc, scale_scale, threshold, new_thresh, filename, cluster_1_A_purity, cluster_1_B_purity, cluster_2_A_purity, cluster_2_B_purity, cluster_1_count, cluster_2_count, score))
     plt.savefig(filename)
 
 def corePart(sample_dict, delta_loc, scale_scale, n_each, filename):
@@ -311,9 +307,9 @@ def corePart(sample_dict, delta_loc, scale_scale, n_each, filename):
 diff = 0.0147 - 0.0060
 
 # 各パラメータで10回ずつ計算する
-for i in range(10):
+for i in range(100):
     # diff を 10で割ってそれぞれの数値をdeltaに入れる   
     for j in range(10):
         delta = 0.0060 + diff/10*j
-        filename = "delta_%08.5f_%02d.png" % (delta,i)
+        filename = "delta_%08.5f_%03d.png" % (delta,i)
         proc(delta,1.0,filename)

@@ -35,7 +35,7 @@ def calcCCvalue(stat_dict):
 
     return randcc
 
-for nds in [50,100,200,500,1000]:
+for nds in [100]:
     n_each = int(nds/2.0)
 
     for nth_time in range(0,100,1):

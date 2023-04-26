@@ -13,10 +13,15 @@ import pandas as pd
 filelist = sys.argv[1:]
 
 plot_name = "new_threshold"
+#plot_name = "cluster_1_count"
 #plot_name = "threshold"
 if len(filelist) != 1:
     plt.figure(figsize=(10,10))
 
+    # color indexを作っておく
+    color_index = 0
+    # color list
+    color_list = ["blue", "green", "black", "purple", "orange", "pink", "brown", "gray"]
     for i, f in enumerate(filelist):
         # file名:f からデータ数を取り出す
         # nds_1000.csv ならば 1000
@@ -42,12 +47,15 @@ if len(filelist) != 1:
         #plt.plot(df.index, df["score"]["mean"],'o-',label=f)
         # fontsize は 20
         plt.tick_params(labelsize=20)
-        plt.plot(df[plot_name], df["score"]["mean"],'o-',label=f'{nds}')
+        plt.plot(df[plot_name], df["score"]["mean"],'o-',label=f'{nds} sets',color=color_list[color_index])
+        # それぞれ最小のthresholdのプロットだけサイズの大きいX点をプロット 
+        plt.plot(df[plot_name].iloc[0], df["score"]["mean"].iloc[0],'X',markersize=12,color=color_list[color_index])
         plt.ylabel("Score", fontsize=20)
         plt.xlabel("Isomorphic threshold", fontsize=20)
         
         #plt.plot(df['delta_loc'], df["score"]["mean"],'o-',label=f)
         plt.legend(fontsize=20)
+        color_index += 1
 
 else:
     f = filelist[0]
