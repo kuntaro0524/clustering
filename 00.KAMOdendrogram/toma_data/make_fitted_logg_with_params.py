@@ -12,6 +12,8 @@ if __name__ == "__main__":
     cluster_numbers = sys.argv[1:]
     cc_values_list = []
 
+    # optparseをimport
+    import optparse
     # コマンドラインから以下の引数を取得する
     # option1: クラスタ番号1
     # option2: クラスタ番号2
@@ -22,6 +24,15 @@ if __name__ == "__main__":
     # "histgram" : ヒストグラムのみ表示
     # "logscale" : ヒストグラムとCCの分布を表示
     
+    parser = optparse.OptionParser()
+    parser.add_option("-c", "--cluster1", dest="cluster1", default="0", help="cluster1")
+    parser.add_option("-d", "--cluster2", dest="cluster2", default="1", help="cluster2")
+    parser.add_option("-t", "--cc_threshold", dest="cc_threshold", default="0.8", help="cc_threshold")
+    parser.add_option("-n", "--nbins", dest="nbins", default="20", help="nbins")
+    parser.add_option("-p", "--process_type", dest="process_type", default="histogram", help="process_type")
+    parser.add_option("-m", "--model_index", dest="model_index", default=0, help="model index 0: skewed, index 2: logg")
+    
+    (options, args) = parser.parse_args()
 
     dfAA,dfBB,dfAB=ccModel.extractCCs("cctable.dat", "filenames.lst",0.8)
 
@@ -57,7 +68,7 @@ if __name__ == "__main__":
     # 0.0, 0.01, 0.02, ... , 0.99, 1.0 の1000個の点を作成する
     import matplotlib.pyplot as plt
     plt.rcParams['font.family'] = 'sans-serif'  # フォントの種類
-    fig = plt.figure(figsize=(15,5))
+    fig = plt.figure(figsize=(12,4))
     ax1 = fig.add_subplot(131)
     ax2 = fig.add_subplot(132)
     ax3 = fig.add_subplot(133)
@@ -125,5 +136,5 @@ if __name__ == "__main__":
     ax3.hist(dfAB['cc'], bins=200, density=False, alpha=0.5, label='AB')
     ax3.plot(x,y_ab,alpha=0.7)
     ax3.set_xlim(0.8,1)
-    plt.savefig("S21a.png")
+    plt.savefig("figure.png")
     plt.show()

@@ -12,6 +12,8 @@ if __name__ == "__main__":
     cluster_numbers = sys.argv[1:]
     cc_values_list = []
 
+    # optparseをimport
+    import optparse
     # コマンドラインから以下の引数を取得する
     # option1: クラスタ番号1
     # option2: クラスタ番号2
@@ -57,73 +59,58 @@ if __name__ == "__main__":
     # 0.0, 0.01, 0.02, ... , 0.99, 1.0 の1000個の点を作成する
     import matplotlib.pyplot as plt
     plt.rcParams['font.family'] = 'sans-serif'  # フォントの種類
-    fig = plt.figure(figsize=(15,5))
-    ax1 = fig.add_subplot(131)
-    ax2 = fig.add_subplot(132)
-    ax3 = fig.add_subplot(133)
+    fig = plt.figure(figsize=(20,20))
 
-    # 縦軸はヒストグラムのbin数でラベルを "Frequency" とする
-    ax1.set_ylabel("Frequency", fontsize=18)
-    # 軸のラベルなどフォントサイズを18ptsにする
-    ax1.tick_params(labelsize=14)
-    ax2.tick_params(labelsize=14)
-    ax3.tick_params(labelsize=14)
-    
     # 横軸はCCの値でラベルを "CC" とする
-    ax1.set_xlabel("CC", fontsize=14)
-    ax2.set_xlabel("CC", fontsize=14)
-    ax3.set_xlabel("CC", fontsize=14)
-    # タイトルを "AA" とする
-    # ylabelのみ少し左へ移動
-    #ax1.set_title("AA", fontsize=18, y=-0.2)
-    ax1.set_ylabel("Frequency", fontsize=14, labelpad=14)
-    ax2.set_ylabel("Frequency", fontsize=14, labelpad=14)
-    ax3.set_ylabel("Frequency", fontsize=14, labelpad=14)
+    plt.xlabel("CC", fontsize=14)
+    plt.ylabel("Frequency", fontsize=14, labelpad=14)
 
     # ラベルサイズは18ptsとする
-    ax1.tick_params(labelsize=14)
-    ax2.tick_params(labelsize=14)
-    ax3.tick_params(labelsize=14)
-    # fontsizerを18ptsにする
-    # title について CC(apo-apo) なのだが、（）内を下付きにする
-    # そのためには、"$CC_{apo-apo}$" とする
-    ax1.set_title("$CC_{apo-apo}$", fontsize=18)
-    ax2.set_title("$CC_{benz-benz}$", fontsize=18)
-    ax3.set_title("$CC_{apo-benz}$", fontsize=18) 
-
-    # グラフどうしの間隔を調整する
-    fig.subplots_adjust(wspace=0.5)
-    # グラフの下側の隙間を調整する
-    fig.subplots_adjust(bottom=0.2)
-    
-    # FittingVarious.model_funcs[1] を利用して数値列を作る
-    # 0: skewed, 1: logg, 2: lognorm
+    # ticsの数値は消す
+    plt.axis("off")
 
     import numpy as np
     x = np.linspace(0, 1, 1000)
     ccModel.getModelFunctions()
     y_aa = ccModel.model_funcs[2](x, sigma_aa, loc_aa, scale_aa)
     # dfAAの 'cc' でヒストグラムを作成する
-    ax1.hist(dfAA['cc'], bins=110, density=False, alpha=0.5, label='AA')
-    ax1.plot(x,y_aa,alpha=0.7)
-    ax1.set_xlim(0.8,1)
+    label_AB = "$CC_{A-A}$"
+    plt.plot(x,y_aa,alpha=0.6, label=label_AB, linewidth=15, color="blue")
 
     # FittingVarious.model_funcs[1] を利用して数値列を作る
     # 0: skewed, 1: logg, 2: lognorm
     x = np.linspace(0, 1, 1000)
     y_bb = ccModel.model_funcs[2](x, sigma_bb, loc_bb, scale_bb)
     # dfAAの 'cc' でヒストグラムを作成する
-    ax2.hist(dfBB['cc'], bins=80, density=False, alpha=0.5, label='BB')
-    ax2.plot(x,y_bb,alpha=0.7)
-    ax2.set_xlim(0.8,1)
+    label_BB = "$CC_{B-B}$"
+    plt.plot(x,y_bb,alpha=0.6, label=label_BB, linewidth=15, color="orange")
 
     # FittingVarious.model_funcs[1] を利用して数値列を作る
     # 0: skewed, 1: logg, 2: lognorm
-    x = np.linspace(0, 1, 1000)
+    x = np.linspace(0, 1, 10000)
     y_ab = ccModel.model_funcs[2](x, sigma_ab, loc_ab, scale_ab)
     # dfABの 'cc' でヒストグラムを作成する
-    ax3.hist(dfAB['cc'], bins=200, density=False, alpha=0.5, label='AB')
-    ax3.plot(x,y_ab,alpha=0.7)
-    ax3.set_xlim(0.8,1)
-    plt.savefig("S21a.png")
+    label_AB = "$CC_{A-B}$"
+    plt.plot(x,y_ab,alpha=0.6, label=label_AB, linewidth=15, color="green")
+    # legendを表示する
+    #plt.legend(loc="upper left", fontsize=48)
+    plt.xlim(0.9,1)
+    #plt.title("CC models(Probability Density Function)", fontsize=48)
+    plt.savefig("explain.png")
     plt.show()
+
+    # 積分値を求める
+    from scipy.integrate import quad
+    # Set 1
+    # lognorm
+    from scipy.stats import lognorm
+    p1, _ = quad(lambda x: lognorm.pdf(1 - x, sigma_aa, loc_aa, scale_aa), 0, np.inf)
+    print("AA 1 probability:", p1)
+    
+    # Set 2
+    p2, _ = quad(lambda x: lognorm.pdf(1 - x, sigma_bb, loc_bb, scale_bb), 0, np.inf)
+    print("BB 2 probability:", p2)
+    
+    # Set 3
+    p3, _ = quad(lambda x: lognorm.pdf(1 - x, sigma_ab, loc_ab, scale_ab), 0, np.inf)
+    print("AB 3 probability:", p3)
