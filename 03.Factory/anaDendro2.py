@@ -56,7 +56,7 @@ cluster_labels = [str(i) for i in range(1, len(dn['ivl']) + 1)]
 from scipy.cluster.hierarchy import fcluster
 
 # クラスタのしきい値を設定
-t = 2.5
+t = 2.0
 
 # 各データ点のクラスタを取得
 labels = fcluster(Z, t, criterion='distance')
@@ -79,9 +79,15 @@ x_coordinates = [0.5 * (x[1] + x[2]) for x in dn['icoord']]
 #y_coordinates = dn['dcoord'][:, 1]
 y_coordinates = [y[1] for y in dn['dcoord']]
 
-for x,y in zip(x_coordinates, y_coordinates):
-    print(x,y)
-    # textを追記
-    plt.text(x, y, '{:.2f}'.format(y), ha='center', va='bottom')
+print("TEST",len(x_coordinates))
+print("TEST2",len(cluster_data))
+print("MAX_THRESH=",thresh0)
+
+for idx,(x,y) in enumerate(zip(x_coordinates, y_coordinates)):
+    # isomorphic threshold 
+    it_tmp = y/thresh0
+    # y (高さ)が閾値を超えている場合は、その点をプロット
+    if y > t:
+        plt.text(x, y, 'index:{:5d},IT={:.2f},WD={:.2f}'.format(idx,it_tmp,y), ha='center', va='bottom')
 
 plt.show()
