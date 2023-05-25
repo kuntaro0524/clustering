@@ -44,16 +44,31 @@ fig = plt.figure(figsize=(100, 80))
 fig.subplots_adjust(left=0.0, right=1.0)
 ax.tick_params(axis='x', which='major', labelsize=35)
 
+# name_listを文字列処理する
+# name_listの中から puckid, pinid を抜き出す
+# 文字列は
+# /user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-04/data00/CPS1899-04-multi_801-900/XDS_ASCII.HKL_noscale
+# まず、/で分割する
+# 最後から２番めにある文字列を抜き出す
+# これをname_list2に格納する
+name_list2 = []
+for i in range(len(name_list)):
+    tmp_name = name_list[i].split('/')[-2]
+    # "multi"の文字列で分割する
+    tmp_name = tmp_name.split('multi')[0]
+    name_list2.append(tmp_name)
+
+    # すでにname_list2にtmp_nameがあるかどうかをチェックする
+    # "_"が入っているかチェックし、ある場合には "_" で分割して後側の数字を読む(tmp_num)
+    # 前側はname_list2に入っているかチェックする
+    # このとき数字で読めなければエラーで止める
+    # tmp_numに１加えて、
+        
 # fontsize を大きくする
 # dendrogram = sch.dendrogram(Z,labels=name_list)
 # labelサイズを大きくする
-# dendrogram = sch.dendrogram(Z,labels=name_list,fontsize=20)
-dendrogram = sch.dendrogram(Z, labels=name_list, leaf_font_size=10)
-# dendrogram = sch.dendrogram(Z)
-
-print("DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD")
-#print(ic)
-print("DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD")
+dendrogram = sch.dendrogram(Z, labels=name_list2, leaf_font_size=10)
+# dendrogram = sch.dendrogram(Z, leaf_font_size=10)
 
 # 分岐点のWard距離の数値を表示する関数
 def add_distance_labels(ax, linkage_matrix, labels, wd_min, wd_max):
@@ -73,7 +88,7 @@ plt.show()
 
 # クラスタごとにデータ名のグループを表示
 def print_cluster_groups(linkage_matrix, labels):
-    clusters = sch.fcluster(linkage_matrix, t=wd_min, criterion='distance')
+    clusters = sch.fcluster(linkage_matrix, t=wd_max, criterion='distance')
     print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
     print(f"length of clusters: {len(clusters)}")
     for cl in clusters:
