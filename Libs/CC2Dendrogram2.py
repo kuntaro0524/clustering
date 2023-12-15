@@ -145,49 +145,44 @@ class CC2Dendrogram:
         # fcluster関数を利用してしきい値よりも小さなクラスタのデータをまとめる
         # しきい値は、isomorphic thresholdとする
         cluster_list = hierarchy.fcluster(self.Z, self.isomorphic_thresh, criterion='distance')
-        print(cluster_list)
-        
-        # zenma_2 = self.Z[c1_index - len(self.name_list)]
-        # zenma_3 = self.Z[c2_index - len(self.name_list)]
-        # print(zenma_2, zenma_3)
+        print(len(cluster_list),cluster_list)
 
-        # c1_index2 = int(zenma_2[0])
-        # c2_index2 = int(zenma_2[1])
+        # cluster_listは、データの個数と同じ長さのリストである
+        # cluster_listの各要素は、データのインデックスに対応している
+        # インデックスが重複しているものをまとめる
+        cluster_list2 = list(set(cluster_list))
+        print(cluster_list2)
 
-        # zenma_4 = self.Z[c1_index2 - len(self.name_list)]
-        # zenma_5 = self.Z[c2_index2 - len(self.name_list)]
+        # cluster_list2の各養素はself.name_listのインデックスに対応している
+        # cluster_list2 の要素数は self.name_listと同じである
+        for name_index,cluster_num in enumerate(cluster_list):
+            print(name_index, cluster_num)
+
+        # self.name_listを少し簡単な名前にする
+        # 上から順に、0, 1, 2, 3, ... とする
+        # このリストをself.name_list2とする
+        self.name_list2 = []
+        for i in range(len(self.name_list)):
+            self.name_list2.append(str(i))
+
+        # デンドログラムの描画
+        # self.Zを使ってデンドログラムを描画する
+        # その際に、self.name_listをラベルにする
+        # また、isomorphic thresholdを赤い線で描画する
+        plt.figure(figsize=(10, 10))
+        plt.title('Hierarchical Clustering Dendrogram')
+        plt.xlabel('sample index')
+        plt.ylabel('distance')
+        hierarchy.dendrogram(
+            self.Z,
+            labels=self.name_list2,
+            leaf_rotation=90.,  # rotates the x axis labels
+            leaf_font_size=8.,  # font size for the x axis labels
+        )
+        plt.axhline(y=self.isomorphic_thresh, color='r', linestyle='-')
+        plt.show()  
 
 
-        # print(hierarchy.leaves_list(self.Z))
-         
-        # 階層的クラスタリングの結果はデータ数が少ないものから結合されており、
-        # Zのward distanceの数値が大きいものから順に、isomorphic thresholdよりも小さいものを探す
-        # isomorphic thresholdより小さなward distanceを持つクラスタが見つかったら、
-        # そのクラスタを構成するデータの個数をカウントする
-        # そのクラスタを構成するデータの名前をログファイルに書き出す
-        # このためには再帰的にZの内容を調べる必要がある
-        # そのためには、Zの内容を調べる関数を作成する必要がある
-        # その関数の名前は、search_Z()とする
-        # search_Z()の引数は、Z, isomorphic_thresh, name_list, log_fileとする
-        # Zは、階層的クラスタリングの結果である
-        # isomorphic_threshは、isomorphic thresholdである
-        # name_listは、データの名前のリストである 
-        # log_fileは、ログファイルの名前である
-        # search_Z()は、isomorphic thresholdよりも小さいward distanceを持つクラスタを見つける
-        # そのクラスタを構成するデータの個数をカウントする
-        # そのクラスタを構成するデータの名前をログファイルに書き出す
-
-
-        def search_Z(Z, isomorphic_thresh, name_list, log_file):
-            # Zの内容を調べる
-            # Zの各行の内容は、[クラスタ1, クラスタ2, ward distance, クラスタを構成するデータの個数]である
-            # クラスタ1とクラスタ2は、クラスタを構成するデータの名前のインデックスである
-            # ファイル名を取得する場合には self.name_list[クラスタ1]とすれば良い（以下同文）
-            # クラスタを構成するデータの個数が2のときには、クラスタを構成するデータの名前をログファイルに書き出す
-            # 2より大きいときには、クラスタ１のインデックスについて、再帰的にZの内容を調べる
-            # クラスタ2のインデックスについても、再帰的にZの内容を調べる
-            print("UNKO")
-         
 if __name__ == "__main__":
     cctable = sys.argv[1]
     filename_list = sys.argv[2]
