@@ -68,6 +68,7 @@ class CC2Dendrogram:
             ofile.write(str(self.Z_sorted[i]) + "\n")
         ofile.close()
 
+
         # ソートした結果の最初のクラスタはすべてのデータを含んでいるはずなので、
         # そのクラスタを構成するデータの個数をカウントする
         zenma = self.Z_sorted[0]
@@ -117,7 +118,16 @@ class CC2Dendrogram:
         # fcluster関数を利用してしきい値よりも小さなクラスタのデータをまとめる
         # しきい値は、isomorphic thresholdとする
         cluster_list = hierarchy.fcluster(self.Z, self.isomorphic_thresh, criterion='distance')
+
+        # 続きでやりたいこと
+        # fclusterはある閾値で線を引いたときにクラスタごとにデータにインデクスをつけてくれる
+        # 例）[1,1,1, 2,2,2,3,3,3,4,4,4]
+        # なので、それぞれのグループの中で、最もWard distanceが大きいときだけデンドログラム上にward distanceを表示する
+        # ということができれば良い
+
+        print("CLUCLUCS")
         print(len(cluster_list),cluster_list)
+        print("CLUCLUCS")
 
         # cluster_listは、データの個数と同じ長さのリストである
         # cluster_listの各要素は、データのインデックスに対応している
@@ -161,15 +171,14 @@ class CC2Dendrogram:
             wd = self.dendrogram['dcoord'][idx][2]
             print(c,wd)
             # c[1]とc[2]の中点をX座標、wdをY座標としてテキストを描画する
+            # テキストの内容 "%5.1f:%d" % (wd, idx)
             x = 0.5 * (c[1] + c[2])
             y = wd
-            plt.text(x, y, f'{wd:.2f}', color='k')
+            plt.text(x, y, "%8.3f : %5d" % (wd, idx), color='k')
         plt.savefig("dendrogram.png")
         plt.show()
-
         print("JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJjj")
-
-
+         
 if __name__ == "__main__":
     cctable = sys.argv[1]
     filename_list = sys.argv[2]

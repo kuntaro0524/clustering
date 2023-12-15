@@ -169,18 +169,18 @@ class CC2Dendrogram:
         # self.Zを使ってデンドログラムを描画する
         # その際に、self.name_listをラベルにする
         # また、isomorphic thresholdを赤い線で描画する
+        # isomorphic threshold以下のクラスタは色を変える
+        # また、isomorphic threshold以下のクラスタをまとめる
+        # その際に、まとめたクラスタのデータの個数をカウントする
+        # さらに、まとめたクラスタのデータの名前をログファイルに書き出す
         plt.figure(figsize=(10, 10))
         plt.title('Hierarchical Clustering Dendrogram')
         plt.xlabel('sample index')
         plt.ylabel('distance')
-        hierarchy.dendrogram(
-            self.Z,
-            labels=self.name_list2,
-            leaf_rotation=90.,  # rotates the x axis labels
-            leaf_font_size=8.,  # font size for the x axis labels
-        )
-        plt.axhline(y=self.isomorphic_thresh, color='r', linestyle='-')
-        plt.show()  
+        hierarchy.dendrogram(self.Z, labels=self.name_list2, leaf_font_size=8, color_threshold=self.isomorphic_thresh)
+        plt.axhline(y=self.isomorphic_thresh, color='r', linestyle='--')
+        plt.show()
+
 
 
 if __name__ == "__main__":
