@@ -1,0 +1,307 @@
+cluster1
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-11/data00/CPS1899-11-multi_301-400/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-11/data00/CPS1899-11-multi_401-500/XDS_ASCII.HKL_noscale
+
+cluster2
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-10/data00/CPS1899-10-multi_1501-1600/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-10/data00/CPS1899-10-multi_1601-1700/XDS_ASCII.HKL_noscale
+
+cluster3
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-09/data00/CPS1899-09-multi_1901-2000/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-09/data00/CPS1899-09-multi_201-300/XDS_ASCII.HKL_noscale
+
+cluster4
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-16/data00/CPS1899-16-multi_401-500/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-16/data00/CPS1899-16-multi_501-600/XDS_ASCII.HKL_noscale
+
+cluster5
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-02/data00/CPS1900-02-multi_1401-1500/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-02/data00/CPS1900-02-multi_1501-1600/XDS_ASCII.HKL_noscale
+
+cluster6
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-10/data00/CPS1900-10-multi_1-100/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-10/data00/CPS1900-10-multi_1001-1100/XDS_ASCII.HKL_noscale
+
+cluster7
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-05/data00/CPS1900-05-multi_801-900/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-05/data00/CPS1900-05-multi_901-1000/XDS_ASCII.HKL_noscale
+
+cluster8
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-05/data00/CPS1899-05-multi_1001-1100/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-05/data00/CPS1899-05-multi_101-200/XDS_ASCII.HKL_noscale
+
+cluster9
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-02/data00/CPS1899-02-multi_1501-1600/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-02/data00/CPS1899-02-multi_1601-1700/XDS_ASCII.HKL_noscale
+
+cluster10
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-16/data00/CPS1899-16-multi_1001-1100/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-16/data00/CPS1899-16-multi_101-200/XDS_ASCII.HKL_noscale
+
+cluster11
+number of nodes=3.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-03/data00/CPS1899-03-multi_1601-1700/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-03/data00/CPS1899-03-multi_1701-1800/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-03/data00/CPS1899-03-multi_1901-2000/XDS_ASCII.HKL_noscale
+
+cluster12
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1407-12/data00/CPS1407-12-multi_301-400/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1407-12/data00/CPS1407-12-multi_401-500/XDS_ASCII.HKL_noscale
+
+cluster13
+number of nodes=3.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-06/data00/CPS1899-06-multi_1101-1200/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-06/data00/CPS1899-06-multi_1201-1300/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-06/data00/CPS1899-06-multi_1301-1400/XDS_ASCII.HKL_noscale
+
+cluster14
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-01/data00/CPS1899-01-multi_401-500/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-01/data00/CPS1899-01-multi_501-600/XDS_ASCII.HKL_noscale
+
+cluster15
+number of nodes=4.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-06/data00/CPS1899-06-multi_301-400/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-06/data00/CPS1899-06-multi_401-500/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-06/data00/CPS1899-06-multi_501-600/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-06/data00/CPS1899-06-multi_601-700/XDS_ASCII.HKL_noscale
+
+cluster16
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-04/data00/CPS1899-04-multi_701-800/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-04/data00/CPS1899-04-multi_801-900/XDS_ASCII.HKL_noscale
+
+cluster17
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-12/data00/CPS1899-12-multi_501-600/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-12/data00/CPS1899-12-multi_701-800/XDS_ASCII.HKL_noscale
+
+cluster18
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1407-14/data00/CPS1407-14-multi_101-200/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1407-14/data00/CPS1407-14-multi_201-300/XDS_ASCII.HKL_noscale
+
+cluster19
+number of nodes=3.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-11/data00/CPS1899-11-multi_801-900/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-11/data00/CPS1899-11-multi_901-1000/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-12/data00/CPS1899-12-multi_1-100/XDS_ASCII.HKL_noscale
+
+cluster20
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-09/data00/CPS1899-09-multi_1701-1800/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-09/data00/CPS1899-09-multi_1901-2000/XDS_ASCII.HKL_noscale
+
+cluster21
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-05/data00/CPS1900-05-multi_201-300/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-05/data00/CPS1900-05-multi_301-400/XDS_ASCII.HKL_noscale
+
+cluster22
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-02/data00/CPS1900-02-multi_901-1000/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-03/data00/CPS1900-03-multi_1-100/XDS_ASCII.HKL_noscale
+
+cluster23
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1407-15/data00/CPS1407-15-multi_401-500/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1407-15/data00/CPS1407-15-multi_501-600/XDS_ASCII.HKL_noscale
+
+cluster24
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-12/data00/CPS1899-12-multi_1001-1100/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-12/data00/CPS1899-12-multi_101-200/XDS_ASCII.HKL_noscale
+
+cluster25
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-12/data00/CPS1900-12-multi_1201-1300/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-12/data00/CPS1900-12-multi_1301-1400/XDS_ASCII.HKL_noscale
+
+cluster26
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-04/data00/CPS1899-04-multi_1401-1500/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-04/data00/CPS1899-04-multi_1501-1600/XDS_ASCII.HKL_noscale
+
+cluster27
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1407-15/data00/CPS1407-15-multi_301-400/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1407-15/data00/CPS1407-15-multi_401-500/XDS_ASCII.HKL_noscale
+
+cluster28
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-03/data00/CPS1900-03-multi_1-100/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-03/data00/CPS1900-03-multi_1001-1100/XDS_ASCII.HKL_noscale
+
+cluster29
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-03/data00/CPS1899-03-multi_701-800/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-03/data00/CPS1899-03-multi_801-900/XDS_ASCII.HKL_noscale
+
+cluster30
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-04/data00/CPS1899-04-multi_201-300/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-04/data00/CPS1899-04-multi_301-400/XDS_ASCII.HKL_noscale
+
+cluster31
+number of nodes=3.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1407-13/data00/CPS1407-13-multi_401-500/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1407-13/data00/CPS1407-13-multi_501-600/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1407-14/data00/CPS1407-14-multi_1-100/XDS_ASCII.HKL_noscale
+
+cluster32
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-11/data00/CPS1899-11-multi_1001-1100/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-11/data00/CPS1899-11-multi_101-200/XDS_ASCII.HKL_noscale
+
+cluster33
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-05/data00/CPS1899-05-multi_701-800/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-05/data00/CPS1899-05-multi_801-900/XDS_ASCII.HKL_noscale
+
+cluster34
+number of nodes=4.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-04/data00/CPS1900-04-multi_1-100/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-04/data00/CPS1900-04-multi_1001-1100/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-04/data00/CPS1900-04-multi_101-200/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-04/data00/CPS1900-04-multi_1101-1200/XDS_ASCII.HKL_noscale
+
+cluster35
+number of nodes=3.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-02/data00/CPS1900-02-multi_401-500/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-02/data00/CPS1900-02-multi_501-600/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-02/data00/CPS1900-02-multi_601-700/XDS_ASCII.HKL_noscale
+
+cluster36
+number of nodes=3.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-01/data00/CPS1899-01-multi_701-800/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-01/data00/CPS1899-01-multi_801-900/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-01/data00/CPS1899-01-multi_901-1000/XDS_ASCII.HKL_noscale
+
+cluster37
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-04/data00/CPS1900-04-multi_1101-1200/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-04/data00/CPS1900-04-multi_201-300/XDS_ASCII.HKL_noscale
+
+cluster38
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-16/data00/CPS1899-16-multi_1501-1600/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-16/data00/CPS1899-16-multi_1601-1700/XDS_ASCII.HKL_noscale
+
+cluster39
+number of nodes=3.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-10/data00/CPS1899-10-multi_1201-1300/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-10/data00/CPS1899-10-multi_1301-1400/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-10/data00/CPS1899-10-multi_1401-1500/XDS_ASCII.HKL_noscale
+
+cluster40
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-16/data00/CPS1899-16-multi_201-300/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-16/data00/CPS1899-16-multi_301-400/XDS_ASCII.HKL_noscale
+
+cluster41
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1407-14/data00/CPS1407-14-multi_201-300/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1407-14/data00/CPS1407-14-multi_301-400/XDS_ASCII.HKL_noscale
+
+cluster42
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-11/data00/CPS1899-11-multi_501-600/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-11/data00/CPS1899-11-multi_601-700/XDS_ASCII.HKL_noscale
+
+cluster43
+number of nodes=4.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-06/data00/CPS1900-06-multi_501-600/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-06/data00/CPS1900-06-multi_601-700/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-06/data00/CPS1900-06-multi_701-800/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-06/data00/CPS1900-06-multi_801-900/XDS_ASCII.HKL_noscale
+
+cluster44
+number of nodes=3.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-03/data00/CPS1900-03-multi_301-400/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-03/data00/CPS1900-03-multi_401-500/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-03/data00/CPS1900-03-multi_601-700/XDS_ASCII.HKL_noscale
+
+cluster45
+number of nodes=5.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-03/data00/CPS1900-03-multi_1701-1800/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-03/data00/CPS1900-03-multi_1801-1900/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-03/data00/CPS1900-03-multi_201-300/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-03/data00/CPS1900-03-multi_301-400/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-03/data00/CPS1900-03-multi_401-500/XDS_ASCII.HKL_noscale
+
+cluster46
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1407-11/data00/CPS1407-11-multi_201-300/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1407-11/data00/CPS1407-11-multi_301-400/XDS_ASCII.HKL_noscale
+
+cluster47
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-05/data00/CPS1899-05-multi_1-100/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-05/data00/CPS1899-05-multi_1001-1100/XDS_ASCII.HKL_noscale
+
+cluster48
+number of nodes=3.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-07/data00/CPS1899-07-multi_1001-1100/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-07/data00/CPS1899-07-multi_101-200/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-07/data00/CPS1899-07-multi_1201-1300/XDS_ASCII.HKL_noscale
+
+cluster49
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-05/data00/CPS1900-05-multi_1901-2000/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-05/data00/CPS1900-05-multi_201-300/XDS_ASCII.HKL_noscale
+
+cluster50
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-07/data00/CPS1899-07-multi_1601-1700/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-07/data00/CPS1899-07-multi_1701-1800/XDS_ASCII.HKL_noscale
+
+cluster51
+number of nodes=3.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-07/data00/CPS1899-07-multi_401-500/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-07/data00/CPS1899-07-multi_501-600/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-07/data00/CPS1899-07-multi_601-700/XDS_ASCII.HKL_noscale
+
+cluster52
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-01/data00/CPS1899-01-multi_101-200/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-01/data00/CPS1899-01-multi_1101-1200/XDS_ASCII.HKL_noscale
+
+cluster53
+number of nodes=3.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-11/data00/CPS1899-11-multi_1601-1700/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-11/data00/CPS1899-11-multi_1701-1800/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-11/data00/CPS1899-11-multi_1801-1900/XDS_ASCII.HKL_noscale
+
+cluster54
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-05/data00/CPS1900-05-multi_601-700/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1900-05/data00/CPS1900-05-multi_701-800/XDS_ASCII.HKL_noscale
+
+cluster55
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-16/data00/CPS1899-16-multi_601-700/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-16/data00/CPS1899-16-multi_701-800/XDS_ASCII.HKL_noscale
+
+cluster56
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1407-04/data00/CPS1407-04-multi_401-500/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1407-05/data00/CPS1407-05-multi_1-100/XDS_ASCII.HKL_noscale
+
+cluster57
+number of nodes=2.0
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-09/data00/CPS1899-09-multi_501-600/XDS_ASCII.HKL_noscale
+/user/target/Auto/2023A/BL32XU_230424_Asada/_kamoproc/merge_ccc_methods2_2.53S_S1PR3_TY/input_files/CPS1899-09/data00/CPS1899-09-multi_601-700/XDS_ASCII.HKL_noscale
+
+cluster58
+number of nodes=6.0
