@@ -68,7 +68,6 @@ class CC2Dendrogram:
             ofile.write(str(self.Z_sorted[i]) + "\n")
         ofile.close()
 
-
         # ソートした結果の最初のクラスタはすべてのデータを含んでいるはずなので、
         # そのクラスタを構成するデータの個数をカウントする
         zenma = self.Z_sorted[0]
@@ -146,91 +145,62 @@ class CC2Dendrogram:
         self.dendrogram = hierarchy.dendrogram(self.Z, labels=self.name_list2, leaf_font_size=8, color_threshold=self.isomorphic_thresh)
         individual_cluster = set(cluster_list)
         n_groups = len(individual_cluster)
-        # 各クラスタのWard距離の最大値を格納するリストを作成する
-        max_ward_clusters = [-999] * n_groups
-        for i,cluster_group in enumerate(cluster_list):
-            group_id = i - 1
-            tmp_ward = self.dendrogram['dcoord'][group_id][2]
-            if max_ward_clusters[cluster_group-1] < tmp_ward:
-                max_ward_clusters[cluster_group-1] = tmp_ward
 
-        print(max_ward_clusters)
+        self.findThresholdCluster()
 
-        print("CLUCLUCS")
-        print(len(cluster_list),cluster_list)
-        print("CLUCLUCS")
+    # data_indexは self.Zのインデックスを示している
+    def findJustBeforeThresholdFromLowerValue(self, data_index):
+        # self.Zの中にdata_indexを含まれている要素を探す
+        # その時のZのインデックスも取得する
+        # そのときのward distanceを表示する
+        # print("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ")
+        # print(len(self.Z)i
+        # print("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ")
+        results_list = []
+        for i in range(self.Z.shape[0]):
+            c1_index = int(self.Z[i][0])
+            c2_index = int(self.Z[i][1])
+            if c1_index == data_index or c2_index == data_index:
+                print("Found! index=",i, " Ward distance=", self.Z[i][2])
+                print(self.Z[i])
+                tmp_ward = self.Z[i][2]
+                if tmp_ward > self.isomorphic_thresh:
+                    print("Found! But the ward distance is larger than the isomorphic threshold")
+                    return True
+                else:
+                    next_index = i + len(self.name_list) - 1
+                    print("Next index=", next_index)
+                    flag = self.findJustBeforeThresholdFromLowerValue(next_index)
+                    if flag==True:
+                        print("DDDD=",data_index,next_index)
+                        return data_index
+                    return False
 
-        def add_labels_to_each_cluster_corrected(Z, ax, threshold):
-            """
-            指定したしきい値に基づいて形成される全てのクラスタに対して、
-            最も高いノードにWard距離とクラスタ番号をラベルとして追加する関数。
-            """
-            # デンドログラムのデータを取得
-            ddata = hierarchy.dendrogram(Z)
+    def findThresholdCluster(self):
+        # fclusterを利用してしきい値よりも小さなクラスタのデータをまとめる
+        # しきい値は、isomorphic thresholdとする
+        cluster_list = hierarchy.fcluster(self.Z, self.isomorphic_thresh, criterion='distance')
+        # cluster_listの要素が同じものを辞書にまとめる
+        cluster_dict = {}
+        for i,cluster_num in enumerate(cluster_list):
+            if cluster_num not in cluster_dict:
+                cluster_dict[cluster_num] = []
+            cluster_dict[cluster_num].append(i)
 
-            # しきい値に基づいてクラスタを特定
-            clusters = hierarchy.fcluster(Z, threshold, criterion='distance')
-            cluster_ids = np.unique(clusters)
+        # cluster_dictの中でcluster_numごとに一つだけ要素を取り出す
+        # その要素をcluster_list2とする
+        cluster_list2 = []
+        for cluster_num,cluster_data in cluster_dict.items():
+            cluster_list2.append(cluster_data[0])
 
-            # 各クラスタの最も高いノード（クラスタ形成の場所）を特定
-            cluster_heights = {cid: 0 for cid in cluster_ids}
-            for i, (x, y) in enumerate(zip(ddata['icoord'], ddata['dcoord'])):
-                x_center = (x[1] + x[2]) / 2
-                y_center = y[1]
-                leaf_idx = int(i / 2)
-                cluster_id = clusters[leaf_idx]
-                if y_center > cluster_heights[cluster_id]:
-                    cluster_heights[cluster_id] = y_center
+        # cluster_list2 に含まれる要素、それぞれについて、self.Zの中身を調査する
+        # 調査するデータのいんでっくすは target_index = cluster_list2[i] とする
+        target_index = cluster_list2[0]
 
-            # 各クラスタの最も高いノードにラベルを追加
-            for i, (x, y) in enumerate(zip(ddata['icoord'], ddata['dcoord'])):
-                x_center = (x[1] + x[2]) / 2
-                y_center = y[1]
-                leaf_idx = int(i / 2)
-                cluster_id = clusters[leaf_idx]
-                if y_center == cluster_heights[cluster_id]:
-                    ax.text(x_center, y_center, f"{y_center:.2f}\n({cluster_id})", ha='center', va='bottom', fontsize=8, color="blue")
+        results = self.findJustBeforeThresholdFromLowerValue(target_index)
+        print("RESULTS")
+        print(results)
 
-            # しきい値に線を引く
-            ax.axhline(y=threshold, c='red', linestyle='--')
-
-        # デンドログラムを描画
-        fig, ax = plt.subplots(figsize=(10, 5))
-        print(self.isomorphic_thresh)
-        add_labels_to_each_cluster_corrected(self.Z, ax, self.isomorphic_thresh)
-
-        # デンドログラムの描画
-        # self.Zを使ってデンドログラムを描画する
-        # その際に、self.name_listをラベルにする
-        # また、isomorphic thresholdを赤い線で描画する
-        # isomorphic threshold以下のクラスタは色を変える
-        # また、isomorphic threshold以下のクラスタをまとめる
-        # その際に、まとめたクラスタのデータの個数をカウントする
-        # さらに、まとめたクラスタのデータの名前をログファイルに書き出す
-        plt.figure(figsize=(10, 10))
-        plt.title('Hierarchical Clustering Dendrogram')
-        plt.xlabel('sample index')
-        plt.ylabel('distance')
-        self.dendrogram = hierarchy.dendrogram(self.Z, labels=self.name_list2, leaf_font_size=8, color_threshold=self.isomorphic_thresh)
-        # 各ノードのところに、ward distanceを表示する
-        # self.add_distance_labels(ax, self.Z, threshold=self.isomorphic_thresh)
-        plt.axhline(y=self.isomorphic_thresh, color='r', linestyle='--')
-
-        print("JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJjj")
-        for idx,c in enumerate(self.dendrogram['icoord']):
-            # idx はクラスタのインデックスとなる→これがKAMOのインデックスとほぼ同じなのではないか
-            # このidxを使ってこのクラスタのward distanceを取得する
-            wd = self.dendrogram['dcoord'][idx][2]
-            print(c,wd)
-            # c[1]とc[2]の中点をX座標、wdをY座標としてテキストを描画する
-            # テキストの内容 "%5.1f:%d" % (wd, idx)
-            x = 0.5 * (c[1] + c[2])
-            y = wd
-            plt.text(x, y, "%8.3f : %5d" % (wd, idx), color='k')
-        plt.savefig("dendrogram.png")
-        plt.show()
-        print("JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJjj")
-         
 if __name__ == "__main__":
     cctable = sys.argv[1]
     filename_list = sys.argv[2]
