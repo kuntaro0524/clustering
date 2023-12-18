@@ -123,8 +123,8 @@ class CC2Dendrogram:
 
         # cluster_list2の各養素はself.name_listのインデックスに対応している
         # cluster_list2 の要素数は self.name_listと同じである
-        for name_index,cluster_num in enumerate(cluster_list):
-            print(name_index, cluster_num)
+        # for name_index,cluster_num in enumerate(cluster_list):
+            # print(name_index, cluster_num)
 
         # self.name_listを少し簡単な名前にする
         # 上から順に、0, 1, 2, 3, ... とする
@@ -146,7 +146,56 @@ class CC2Dendrogram:
         individual_cluster = set(cluster_list)
         n_groups = len(individual_cluster)
 
-        self.findThresholdCluster()
+        values = self.findThresholdCluster()
+        print("VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV")
+        for value in values:
+            print(value)
+            print(self.Z[value[0]])
+        print("VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV")
+
+        # デンドログラムの描画
+        # self.Zを使ってデンドログラムを描画する
+        # その際に、self.name_listをラベルにする
+        # また、isomorphic thresholdを赤い線で描画する
+        # isomorphic threshold以下のクラスタは色を変える
+        # また、isomorphic threshold以下のクラスタをまとめる
+        # その際に、まとめたクラスタのデータの個数をカウントする
+        # さらに、まとめたクラスタのデータの名前をログファイルに書き出す
+        plt.figure(figsize=(10, 10))
+        plt.title('Hierarchical Clustering Dendrogram')
+        plt.xlabel('sample index')
+        plt.ylabel('distance')
+        self.dendrogram = hierarchy.dendrogram(self.Z, labels=self.name_list2, leaf_font_size=8, color_threshold=self.isomorphic_thresh)
+
+        # 特定のノードに Ward distance と cluster number を表示する
+        # values に入っているものがそれに相当する
+        # values には (index, Z[index]) が入っている
+        # index は self.Z のインデックスである
+        # Z[index] は、[c1_index, c2_index, ward_distance, n_data] である
+        # ward_distanceはこの数値を利用する
+        # 数値を書き込む座標は dendrogram['icoord'], dendrogram['dcoord'] を利用する
+        # icoord は、各ノードのX座標のリストである (4つの要素を持つリスト)
+        # dcoord は、各ノードのY座標のリストである (4つの要素を持つリスト)
+        for idx,c in enumerate(values):
+            # index_label & word distance
+            label = "%03d\n(%5.3f)"%(c[0], c[1][2])
+            # デンドログラム上の座標を取得する
+            # dcoord は、各ノードのY座標のリストであり、Ward distanceでもある
+            # このY座標を利用し、 c[1][2] と比較、差分が0.001以下の場合には
+            # X座標を取得する
+            xcode = 0
+            ycode = 0
+            for idx2,d in enumerate(self.dendrogram['dcoord']):
+                if abs(d[1] - c[1][2]) < 0.001:
+                    xcode = self.dendrogram['icoord'][idx2][1]
+                    ycode = d[1]
+                    break
+            # label を描画する
+            plt.text(xcode, ycode, label, color='k')
+
+        # self.isomorphic_thresh を描画する
+        plt.axhline(y=self.isomorphic_thresh, color='r', linestyle='--')
+        plt.show()
 
     # data_indexは self.Zのインデックスを示している
     def findJustBeforeThresholdStepWiseFromLowerValue(self, data_index):
@@ -160,16 +209,15 @@ class CC2Dendrogram:
             if c1_index == data_index or c2_index == data_index:
                 print("Found! index=",i, " Ward distance=", self.Z[i][2])
                 print(self.Z[i])
-                results_list.append(self.Z[i])
+                results_list.append((i,self.Z[i]))
                 tmp_ward = self.Z[i][2]
                 if tmp_ward > self.isomorphic_thresh:
                     print("Found! But the ward distance is larger than the isomorphic threshold")
                     return []
                 else:
                     next_index = i + len(self.name_list)
-                    print("Next index=", next_index)
+                    # print("Next index=", next_index)
                     tmp_list = self.findJustBeforeThresholdStepWiseFromLowerValue(next_index)
-                    print(tmp_list)
                     results_list.extend(tmp_list)
                     return results_list
 
@@ -194,6 +242,8 @@ class CC2Dendrogram:
         print(cluster_list2)
         print("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
 
+        results_list = []
+
         for target_index in cluster_list2:
             print("<<<<<<<<<<<<<<< %s <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"%target_index)
             # results は target_index を含むクラスタを下から順に検査して、isomorphic thresholdをギリギリ超えない
@@ -201,12 +251,13 @@ class CC2Dendrogram:
             results = self.findJustBeforeThresholdStepWiseFromLowerValue(target_index)
             # print(results)
             # resultsの最後に入っているものが狙っているもの
-            print(results)
+            # print(results)
             if len(results) > 0:
-                print(results[-1])
+                results_list.append(results[-1])
             else:
-                print("No results")
-
+                print("Not found")
+        
+        return results_list
 
 if __name__ == "__main__":
     cctable = sys.argv[1]

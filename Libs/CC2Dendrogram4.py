@@ -174,6 +174,7 @@ class CC2Dendrogram:
 
             # 各クラスタの最も高いノード（クラスタ形成の場所）を特定
             cluster_heights = {cid: 0 for cid in cluster_ids}
+            print("CLUSTER_HEIGHTS = ", cluster_heights)
             for i, (x, y) in enumerate(zip(ddata['icoord'], ddata['dcoord'])):
                 x_center = (x[1] + x[2]) / 2
                 y_center = y[1]
