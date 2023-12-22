@@ -25,7 +25,24 @@ name_list = []
 for line in lines:
     name_list.append(line.strip())
 
+# dis_listがnumpy配列であると仮定
+# 無限大の要素をチェック
+inf_indices = np.where(np.isinf(dis_list))
+print("無限大の要素の位置：", inf_indices)
 
+# NaNの要素をチェック
+nan_indices = np.where(np.isnan(dis_list))
+print("NaNの要素の位置：", nan_indices)
+
+# dis_listがnumpy配列であると仮定
+# 無限大やNaNを含むかどうかをチェック
+if not np.all(np.isfinite(dis_list)):
+    print("replace inf and nan to 0")
+    # 無限大やNaNを別の値で置き換える（例えば0や平均値など）
+    dis_list = np.nan_to_num(dis_list)
+
+
+# その後、hierarchy.linkageを実行
 Z = hierarchy.linkage(dis_list, 'ward')
 
 # 最後から１つ目で、一番高い山のWard distanceを取得

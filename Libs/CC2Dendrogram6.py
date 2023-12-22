@@ -7,6 +7,7 @@ class CC2Dendrogram:
     def __init__(self, cctable, filename_list):
         self.cctable = cctable
         self.filename_list = filename_list
+        self.isRead = False
 
         # Ratio
         self.it_ratio = 0.7
@@ -21,16 +22,33 @@ class CC2Dendrogram:
             else:
                 ax.text(x, y, f'{y:.2f}', color='k')
 
-    def run(self):
+    def cleanData(self):
+        # dis_listがnumpy配列であると仮定
+        # 無限大の要素をチェック
+        inf_indices = np.where(np.isinf(self.dis_list))
+        print("無限大の要素の位置：", inf_indices)
+
+        # NaNの要素をチェック
+        nan_indices = np.where(np.isnan(self.dis_list))
+        print("NaNの要素の位置：", nan_indices)
+
+        # dis_listがnumpy配列であると仮定
+        # 無限大やNaNを含むかどうかをチェック
+        if not np.all(np.isfinite(self.dis_list)):
+            print("replace inf and nan to 0")
+            # 無限大やNaNを別の値で置き換える（例えば0や平均値など）
+            self.dis_list = np.nan_to_num(self.dis_list)
+
+    def readData(self):
         with open(self.cctable) as f:
             lines = f.readlines()
-        cc_list = []
-        dis_list = []
+        self.cc_list = []
+        self.dis_list = []
 
         for line in lines[1:]:
             x = line.split()
-            cc_list.append(float(x[2]))
-            dis_list.append(np.sqrt(1 - float(x[2]) ** 2))
+            self.cc_list.append(float(x[2]))
+            self.dis_list.append(np.sqrt(1 - float(x[2]) ** 2))
 
         with open(self.filename_list) as f2:
             lines = f2.readlines()
@@ -40,13 +58,26 @@ class CC2Dendrogram:
         for line in lines:
             self.name_list.append(line.strip())
 
-        self.Z = hierarchy.linkage(dis_list, 'ward')
+        self.isRead = True
 
-        # Zの情報をファイルに書き出す "z.txt"
-        ofile = open("z.txt", "w")
+    def writeZinfo(self, prefix):
+        ofile = open(prefix + "_z.txt", "w")
         for i in range(self.Z.shape[0]):
             ofile.write(str(self.Z[i]) + "\n")
         ofile.close()
+        # sorted
+        ofile = open(prefix + "_z_sorted.txt", "w")
+        for i in range(self.Z_sorted.shape[0]):
+            ofile.write(str(self.Z_sorted[i]) + "\n")
+        ofile.close()
+
+    def prepZ(self):
+        # Z を計算する
+        if self.isRead == False:
+            self.readData()
+        # cleanData
+        self.cleanData()
+        self.Z = hierarchy.linkage(self.dis_list, 'ward')
 
         last_merge = self.Z[-1]
         thresh0 = last_merge[2]
@@ -62,12 +93,10 @@ class CC2Dendrogram:
 
         self.Z_sorted = self.Z[self.Z[:,2].argsort()[::-1]]
 
-        # ソートした結果をファイルに書き出す "z_sorted.txt"
-        ofile = open("z_sorted.txt", "w")
-        for i in range(self.Z_sorted.shape[0]):
-            ofile.write(str(self.Z_sorted[i]) + "\n")
-        ofile.close()
+        # Z, Z_sorted をファイルに書き出す
+        self.writeZinfo("cc")
 
+    def run(self):
         # ソートした結果の最初のクラスタはすべてのデータを含んでいるはずなので、
         # そのクラスタを構成するデータの個数をカウントする
         zenma = self.Z_sorted[0]
