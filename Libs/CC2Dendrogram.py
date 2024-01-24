@@ -2,6 +2,7 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.cluster import hierarchy
+import pandas as pd
 
 class CC2Dendrogram:
     def __init__(self, cctable, filename_list):
@@ -39,44 +40,79 @@ class CC2Dendrogram:
             # 無限大やNaNを別の値で置き換える（例えば0や平均値など）
             self.dis_list = np.nan_to_num(self.dis_list)
 
+        # self.dis_list には
+        print("##########################")
+        print(self.dis_list)
+        print("##########################")
+
+        # self.name_listとself.dis_listの要素数が一致しているかをチェックする
+        # if len(self.name_list) != len(self.dis_list):
+            # print("Error: the number of elements in self.name_list and self.dis_list are different")
+            # sys.exit(1)
+    # end of cleanData
+
     def readData(self):
         with open(self.cctable) as f:
             lines = f.readlines()
         self.cc_list = []
         self.dis_list = []
 
+        self.bad_file_indices = []
         for line in lines[1:]:
             x = line.split()
-            self.cc_list.append(float(x[2]))
-            self.dis_list.append(np.sqrt(1 - float(x[2]) ** 2))
+            # nrefl check
+            if int(x[3]) < 3:
+                # print("number of reflection is less than 3")
+                # データのインデックスを保存する
+                self.bad_file_indices.append(int(x[0]))
+                self.bad_file_indices.append(int(x[1]))
+            else:
+                self.cc_list.append(float(x[2]))
+                self.dis_list.append(np.sqrt(1 - float(x[2]) ** 2))
+
+        # self.bad_file_indicesの重複をなくす
+        self.bad_file_indices = list(set(self.bad_file_indices))
+        print("Bad files:", self.bad_file_indices)
 
         with open(self.filename_list) as f2:
             lines = f2.readlines()
-
+        
         self.name_list = []
 
         for line in lines:
             self.name_list.append(line.strip())
 
+        # self.bad_file_indecesのインデックスの要素を self.filename_listから削除する
+        # インデックスがindices_to_removeに含まれていない要素だけを新しいリストに含める
+        filtered_list = [item for idx, item in enumerate(self.name_list) if idx not in self.bad_file_indices]
+        print(len(self.name_list))
+        print(len(filtered_list))
+
         self.isRead = True
 
     def writeZinfo(self, prefix):
         ofile = open(prefix + "_z.txt", "w")
+        # 書き出す self.Zの要素は、[c1_index, c2_index, ward_distance, n_data] である
+        # c1_index, c2_index は四桁の整数として書き出す
+        # ward_distance は小数点以下3桁まで書き出す
+        # n_data は整数として書き出す
         for i in range(self.Z.shape[0]):
-            ofile.write(str(self.Z[i]) + "\n")
+            ofile.write("%04d %04d %5.3f %d\n"%(self.Z[i][0], self.Z[i][1], self.Z[i][2], self.Z[i][3]))
         ofile.close()
         # sorted
         ofile = open(prefix + "_z_sorted.txt", "w")
         for i in range(self.Z_sorted.shape[0]):
-            ofile.write(str(self.Z_sorted[i]) + "\n")
+            ofile.write("%04d %04d %5.3f %d\n"%(self.Z_sorted[i][0], self.Z_sorted[i][1], self.Z_sorted[i][2], self.Z_sorted[i][3]))
         ofile.close()
 
     def prepZ(self):
         # Z を計算する
         if self.isRead == False:
             self.readData()
+
         # cleanData
         self.cleanData()
+
         self.Z = hierarchy.linkage(self.dis_list, 'ward')
 
         last_merge = self.Z[-1]
@@ -95,6 +131,47 @@ class CC2Dendrogram:
 
         # Z, Z_sorted をファイルに書き出す
         self.writeZinfo("cc")
+
+    def readKAMOCClist(self, filename="CLUSTERS.txt"):
+        # CLUSTERS.txtを読み込む
+        # pandas dataframeとして読む
+        # １列目はクラスタID, 2列目はクラスタのデータ数, 3列目はクラスタのWard距離, 4列目以降はクラスタを構成するデータのインデックス
+        # ただし、４列目以降の数値は整数が複数入っているため、４列目以降の整数をリストにしてから、pandas dataframeの
+        # data_indices カラムに保存する
+        lines = open(filename).readlines()
+        cluster_id_list = []
+        cluster_n_data_list = []
+        cluster_ward_distance_list = []
+        cluster_data_indices_list = []
+        for line in lines[1:]:
+            x = line.split()
+            cluster_id_list.append(int(x[0]))
+            cluster_n_data_list.append(int(x[1]))
+            cluster_ward_distance_list.append(float(x[2]))
+            cluster_data_indices_list.append([int(i) for i in x[3:]])
+        # pandas dataframeを作成する
+        df = pd.DataFrame()
+        df['cluster_id'] = cluster_id_list
+        df['n_data'] = cluster_n_data_list
+        df['ward_distance'] = cluster_ward_distance_list
+        df['data_indices'] = cluster_data_indices_list
+        # 確認のために data_indicesの要素数をn_dataとともに表示
+        for i in range(df.shape[0]):
+            print(df['n_data'][i], len(df['data_indices'][i]))
+
+        return df
+
+    def divideClusterWithIsomorphicThreshold(self):
+        # CC clustering information from "CLUSTERS.txt"
+        df = self.readKAMOCClist()
+        # df の中で、最大のWard距離を抽出する
+        max_ward_distance = df['ward_distance'].max()
+        # isomorphic thresholdを計算する
+        self.isomorphic_threshold = self.it_ratio * max_ward_distance
+        print("isomorphic_threshold=", self.isomorphic_threshold)
+        # isomorphic thresholdよりも大きいWard距離を持つクラスタを抽出する
+        df2 = df[df['ward_distance'] >= self.isomorphic_threshold]
+        print(df2)
 
     def index2name(self, index):
         # c1_index, c2_indexがname_listのデータ数よりも大きい場合には、
@@ -134,8 +211,8 @@ class CC2Dendrogram:
         c2_index = int(zenma[1])
         ward_distance = zenma[2]
         n_data = int(zenma[3])
-        print(c1_index, c2_index, ward_distance, n_data)
-        print(len(self.name_list))
+        # print(c1_index, c2_index, ward_distance, n_data)
+        # print(len(self.name_list))
 
         # Convert the returned file name list into a one-dimensional array and concatenate them
         print(">>>>>>>>>>>>>>>>>")
@@ -292,4 +369,5 @@ if __name__ == "__main__":
     cctable = sys.argv[1]
     filename_list = sys.argv[2]
     cc2dendrogram = CC2Dendrogram(cctable, filename_list)
-    cc2dendrogram.run()
+    # cc2dendrogram.run()
+    cc2dendrogram.divideClusterWithIsomorphicThreshold()
