@@ -100,6 +100,63 @@ class CC2Dendrogram:
 
     # end of rejectResort
 
+    def readData2(self):
+        # cctable.dat を読み込む pandas.DataFrameとして読み込む
+        # 1行目はヘッダーなのでカラム名として利用する
+        # columns は ['i', 'j', 'cc', 'nref'] となる
+        # columns のデータ型は integer, integer, float, integer である
+        # Dataframeにはそのデータ型で格納する
+        maindf = pd.read_csv('cctable.dat', delim_whitespace=True, dtype={'i':int, 'j':int, 'cc':float, 'nref':int})
+        # cc の数値がnanの行を特定し、関連するインデックスを取得
+        tmpdf = maindf[maindf['cc'].isnull()]
+        # 悪い結果を出しているデータのインデクスを格納する辞書
+        idx_bad = {}
+        # nans 配列を準備して、nanのインデックスを格納する
+        nans = []
+        for index, row in tmpdf.iterrows():
+            tmpi= int(row['i'])
+            tmpj= int(row['j'])
+            nans.append((tmpi,tmpj))
+            idx_bad[tmpi] = idx_bad.get(tmpi, 0) + 1
+            idx_bad[tmpj] = idx_bad.get(tmpj, 0) + 1
+        
+        # 次に、nrefl が3未満の行を特定し、関連するインデックスを取得しnansに追加する
+        lack_refdf = maindf[maindf['nref'] < 3]
+        for index, row in lack_refdf.iterrows():
+            tmpi= int(row['i'])
+            tmpj= int(row['j'])
+            # すでにnansに入っている場合には、追加しない
+            if (tmpi, tmpj) in nans: 
+                print("あるよ！")
+                continue
+            nans.append((tmpi,tmpj))
+            idx_bad[tmpi] = idx_bad.get(tmpi, 0) + 1
+            idx_bad[tmpj] = idx_bad.get(tmpj, 0) + 1
+
+        # idx_badをリストに変換してからsortする
+        idx_bad_list = list(idx_bad.items())
+        idx_bad_list.sort(key=lambda x:x[1])
+
+        # 削除するデータのインデックス
+        remove_idxes = set()
+
+        for idx, badcount in reversed(idx_bad_list):
+            print("Current nans: ", nans)
+            print("processing idx: ", idx)
+            if len([x for x in nans if idx in x]) == 0: continue
+            print("GOGOGOGOG")
+            remove_idxes.add(idx)
+
+            nans = [x for x in nans if idx not in x]
+            if len(nans) == 0: break
+
+        # remove_idxes の数
+        print("remove_idxes: ", len(remove_idxes))
+        
+        # 利用するインデックス
+        use_idxes = [x for x in range(len(maindf)) if x not in remove_idxes]
+        print(len(use_idxes))
+
     def readData(self):
         with open(self.cctable) as f:
             lines = f.readlines()
@@ -460,4 +517,5 @@ if __name__ == "__main__":
     cc2dendrogram = CC2Dendrogram(cctable, filename_list)
     # cc2dendrogram.drawDendrogram()
     # cc2dendrogram.rejectResort()
-    cc2dendrogram.divideClusterWithIsomorphicThreshold()
+    # cc2dendrogram.divideClusterWithIsomorphicThreshold()
+    cc2dendrogram.readData2()
