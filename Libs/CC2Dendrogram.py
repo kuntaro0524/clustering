@@ -115,6 +115,9 @@ class CC2Dendrogram:
         unique_indices = sorted(set(maindf['i']).union(set(maindf['j'])))
         # cc の数値がnanの行を特定し、関連するインデックスを取得
         tmpdf = maindf[maindf['cc'].isnull()]
+        # cc のヒストグラムを表示
+        maindf['cc'].hist(bins = 100)
+        plt.show()
         # 悪い結果を出しているデータのインデクスを格納する辞書
         idx_bad = {}
         # nans 配列を準備して、nanのインデックスを格納する
@@ -138,6 +141,16 @@ class CC2Dendrogram:
             nans.append((tmpi,tmpj))
             idx_bad[tmpi] = idx_bad.get(tmpi, 0) + 1
             idx_bad[tmpj] = idx_bad.get(tmpj, 0) + 1
+
+        # CCの数値が0未満の行を表示
+        minus_ccdf = maindf[maindf['cc'] < 0]
+        print("CCの数値が0未満の行を表示")
+        print(minus_ccdf,len(minus_ccdf))
+
+        # CCの数値が1以上の行を表示
+        plus_ccdf = maindf[maindf['cc'] >= 1]
+        print("CCの数値が1以上の行を表示")
+        print(plus_ccdf)
 
         # idx_badをリストに変換してからsortする
         idx_bad_list = list(idx_bad.items())
@@ -173,12 +186,19 @@ class CC2Dendrogram:
             if i in remove_idxes: continue
             self.org2now[i] = count
             count += 1
+
+        cc_to_distance = lambda x: np.sqrt(1.0-x)
         
         # Distance matrixを計算する
         mat = np.zeros(shape = (self.N, self.N))
+        ofs = open("cc_new_table.dat", "w") 
         for (i,j), (cc, nref) in zip(maindf[['i','j']].values, maindf[['cc','nref']].values):
+            ofs.write("%4d %4d % .4f %4d\n"%(i,j,cc,nref))
             if i in remove_idxes or j in remove_idxes: continue
-            mat[self.org2now[i], self.org2now[j]] = np.sqrt(1 - cc)
+            distance = cc_to_distance(min(cc,1.0))
+            # print("LLL",cc, distance)
+            mat[self.org2now[j], self.org2now[i]] = distance
+        ofs.close()
 
         # filename_listを読み込む
         with open(self.filename_list) as f2:
@@ -214,6 +234,7 @@ class CC2Dendrogram:
             ofile.write("%04d %04d %5.3f %d\n"%(self.Z_sorted[i][0], self.Z_sorted[i][1], self.Z_sorted[i][2], self.Z_sorted[i][3]))
         ofile.close()
     
+    # 結果を表示する
     def showResults(self,mode="simple"):
         # Z を計算する
         if self.isRead == False:
@@ -237,6 +258,9 @@ class CC2Dendrogram:
             self.mode_function[mode]()
         else:
             self.mode_function["simple"]()
+
+        #　デンドログラム上にWard距離とクラスタ番号をすべて表示する
+        self.drawAllNotesOnDendrogram()
 
         print("length of dis_list: ", len(self.dis_list))
         self.Z_sorted = self.Z[self.Z[:,2].argsort()[::-1]]
@@ -456,8 +480,10 @@ class CC2Dendrogram:
         for idx,c in enumerate(values):
             # これに含まれているデータセット数
             ndata = c[1][3]
+            # cluster no
+            cluster_no = c[0] + 1
             # index_label & word distance
-            label = "%03d\n(%5.2f) ndata=%d"%(c[0], c[1][2],ndata)
+            label = "%03d\n(%5.2f) ndata=%d"%(cluster_no, c[1][2],ndata)
             # デンドログラム上の座標を取得する
             # dcoord は、各ノードのY座標のリストであり、Ward distanceでもある
             # このY座標を利用し、 c[1][2] と比較、差分が0.001以下の場合には
@@ -466,6 +492,40 @@ class CC2Dendrogram:
             ycode = 0
             for idx2,d in enumerate(self.dendrogram['dcoord']):
                 if abs(d[1] - c[1][2]) < 0.001:
+                    xcode = self.dendrogram['icoord'][idx2][1]
+                    ycode = d[1]
+                    break
+            # label を描画する
+            plt.text(xcode, ycode, label, color='k')
+        plt.savefig("dendro_note.pdf")
+        plt.show()
+
+    def drawAllNotesOnDendrogram(self):
+        #シンプルにデンドログラムを描く
+        plt.figure(figsize=(20, 20))
+        plt.title('Hierarchical Clustering Dendrogram')
+        plt.xlabel('sample index')
+        plt.ylabel('distance')
+        self.dendrogram = hierarchy.dendrogram(self.Z, labels=self.hclabels, leaf_font_size=4, color_threshold=self.isomorphic_thresh)
+        # dcoordを利用して self.Z のデータインデックスを表示する
+        # dcoord は、各ノードのY座標のリストである
+        # このY座標を利用し、 self.Z のデータインデックスと比較、差分が0.001以下の場合には
+        # X座標を取得する
+        for idx,c in enumerate(self.Z):
+            # これに含まれているデータセット数
+            dist = c[2]
+            ndata = c[3]
+            cluster_no = idx + 1
+            # index_label & word distance
+            label = "%03d\n(%5.2f) ndata=%d"%(cluster_no,dist,ndata)
+            # デンドログラム上の座標を取得する
+            # dcoord は、各ノードのY座標のリストであり、Ward distanceでもある
+            # このY座標を利用し、 c[1][2] と比較、差分が0.001以下の場合には
+            # X座標を取得する
+            xcode = 0
+            ycode = 0
+            for idx2,d in enumerate(self.dendrogram['dcoord']):
+                if abs(d[1] - c[2]) < 0.001:
                     xcode = self.dendrogram['icoord'][idx2][1]
                     ycode = d[1]
                     break
@@ -493,9 +553,9 @@ class CC2Dendrogram:
         for i in range(self.Z.shape[0]):
             c1_index = int(self.Z[i][0])
             c2_index = int(self.Z[i][1])
-            print("Z index:", i, "c1_index:", c1_index, "c2_index:", c2_index)
+            # print("Z index:", i, "c1_index:", c1_index, "c2_index:", c2_index)
             if c1_index == data_index or c2_index == data_index:
-                print("Found! index=",i, " Ward distance=", self.Z[i][2])
+                # print("Found! index=",i, " Ward distance=", self.Z[i][2])
                 print(self.Z[i])
                 results_list.append((i,self.Z[i]))
                 tmp_ward = self.Z[i][2]
@@ -504,7 +564,7 @@ class CC2Dendrogram:
                     return []
                 else:
                     next_index = i + len(self.hclabels)
-                    print("Next index=", next_index)
+                    # print("Next index=", next_index)
                     tmp_list = self.findJustBeforeThresholdStepWiseFromLowerValue(next_index)
                     results_list.extend(tmp_list)
                     return results_list
