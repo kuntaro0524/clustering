@@ -30,6 +30,25 @@ class ProcCLUSTERINGTXT:
         self.df = pd.DataFrame(data, columns=["cluster_id", "n_datasets", "ward_distance", "data_id"])
         self.isRead = True
 
+    def estimateIsomorphicThreshold(self):
+        if self.isRead == False:
+            self.readClusters()
+        # self.dfの中で、ward_distanceの最大値を求める
+        max_ward_distance = self.df["ward_distance"].max()
+        print(max_ward_distance)
+        # max_ward_distance に 0.7 を賭けた数値を求め self.iso_threshold とする
+        self.iso_threshold = max_ward_distance * 0.7
+        print(self.iso_threshold)
+        # ward ditance が self.iso_threshold 以下のcluster_idを求める
+        isomorphic_clusters = self.df[self.df["ward_distance"] <= self.iso_threshold]
+        print(isomorphic_clusters)
+        # isomorphic ではないものも求める
+        non_isomorphic_clusters = self.df[self.df["ward_distance"] > self.iso_threshold]
+        print(non_isomorphic_clusters)
+        # iromorphic_clusters と non_isomorphic_clusters の数を数える
+        print("isomorphic_clusters: ", len(isomorphic_clusters))
+        print("non_isomorphic_clusters: ", len(non_isomorphic_clusters))
+
     def containsOrNot(self, id1, id2):
         # id1 は cluster_id であり、id2も別のcluster_id
         # 今、データ数はid1 > id2 であるとする
@@ -56,6 +75,8 @@ class ProcCLUSTERINGTXT:
             self.readClusters() 
         # parent_idと一致するDataFrameから data_idsを取得する
         parent_ids = self.df[self.df["cluster_id"] == parent_id]['data_id'].values[0]
+        # parent id のWard distanceを取得する
+        parent_ward_distance = self.df[self.df["cluster_id"] == parent_id]['ward_distance'].values[0]
         print("################")
         print(type(parent_ids))
         print("################")
@@ -66,17 +87,21 @@ class ProcCLUSTERINGTXT:
         useful_indices = []
         for index, row in self.df.iterrows():
             data_ids = row['data_id']
-            for parent_id in parent_ids:
-                # print("!!!",parent_id)
-                if parent_id in data_ids:
-                    # print(data_ids)
+            # ward distance が  parent_ward_distance よりも大きい場合は無視
+            if row['ward_distance'] > parent_ward_distance:
+                continue
+                # もしも、parent_idsの要素がdata_idsの要素に含まれていれば useful_indicesにindexを追加する
+            for id in parent_ids:
+                if id in data_ids:
                     useful_indices.append(index)
                     break
 
         print(useful_indices)
         new_df = self.df.loc[useful_indices]
         # CSV fileに書き出す 
-        new_df.to_csv("new_df.csv", index=False)
+        # ファイル名には parent_id を含める
+        filename = "cluster_" + str(parent_id) + ".csv"
+        new_df.to_csv(filename, index=False)
         
         return new_df
 
@@ -93,4 +118,5 @@ if __name__ == "__main__":
     #proc.readClusters()
     #print(proc.containsOrNot(11525, 11524))
     #print(proc.containsOrNot(11524, 10835))
-    print(proc.burasagariGroup(11523))
+    print(proc.burasagariGroup(int(sys.argv[1])))
+    #proc.estimateIsomorphicThreshold()
